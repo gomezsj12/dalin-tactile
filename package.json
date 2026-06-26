@@ -1,0 +1,54 @@
+{
+  "name": "@dalin/tactile",
+  "version": "0.1.0",
+  "description": "Make web interactions feel real. One call fires coordinated haptics, sound, and motion — each independently tunable and toggleable. Pure-web today; swappable to a native haptic backend later.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Samuel Gomez",
+  "repository": { "type": "git", "url": "git+https://github.com/gomezsj12/dalin-tactile.git" },
+  "homepage": "https://github.com/gomezsj12/dalin-tactile#readme",
+  "bugs": { "url": "https://github.com/gomezsj12/dalin-tactile/issues" },
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./sound": {
+      "types": "./dist/sound/index.d.ts",
+      "import": "./dist/sound/index.js"
+    },
+    "./motion": {
+      "types": "./dist/motion/index.d.ts",
+      "import": "./dist/motion/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "prepublishOnly": "npm run build",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "keywords": [
+    "haptics",
+    "vibration",
+    "taptic",
+    "sound",
+    "web-audio",
+    "motion",
+    "microinteraction",
+    "confetti",
+    "particles",
+    "boop",
+    "pwa",
+    "feedback"
+  ],
+  "devDependencies": {
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  }
+}
