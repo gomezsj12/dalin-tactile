@@ -31,6 +31,29 @@ import { detectPlatform } from "./platform.js";
 import type { Platform } from "./platform.js";
 import { iosSwitchAvailable } from "./ios-switch.js";
 
+// Public type surface — so consumers can type their integration + custom packs.
+export type {
+  Tactile,
+  TactileConfig,
+  TactileReport,
+  ChannelConfig,
+  EventName,
+  EventRecipe,
+  EventOverrides,
+  HapticStep,
+  HapticRecipe,
+  BackendKind,
+  HapticBackend,
+  BackendProbe,
+  SoundPack,
+  SoundChannel,
+  MotionDriver,
+  MotionSpec,
+  MotionTarget,
+  MotionRuntime,
+  Targetish,
+} from "./types.js";
+
 const isBrowser = typeof window !== "undefined";
 
 export function createTactile(config: TactileConfig = {}): Tactile {
