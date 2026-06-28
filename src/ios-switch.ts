@@ -36,7 +36,7 @@ export function iosSwitchAvailable(): boolean {
  * the path WebKit honored for programmatic use on iOS 17.4–26.4. iOS 26.5
  * patched the script path; the documented follow-up is a real, invisible switch
  * the user's own finger toggles (an overlay), which slots in HERE without
- * changing any caller. See notes-app/docs/haptics-roadmap.md.
+ * changing any caller. See docs/DEFERRED.md (AUDIT-016: repointed from a cross-repo path).
  */
 export function iosTick(): void {
   if (!ensure() || !host) return;

@@ -55,9 +55,15 @@ export const synthPack: SoundPack = {
   name: "synth",
   create(ctx: AudioContext): SoundChannel {
     const master = ctx.createGain();
+    // AUDIT-008 (Low): gain > 1.0 with no limiter — overlapping cues (a 2.5s buzz under
+    // rapid taps, or thud's layered booms) can sum past 1.0 and hard-clip. Consider a
+    // DynamicsCompressorNode / soft-clip between master and destination. docs/code-audit.md.
     master.gain.value = 1.6; // a touch hotter — phone speakers are quiet
     master.connect(ctx.destination);
 
+    // AUDIT-019 (Low, acceptable): creates 2 nodes per spec (up to 6 for thud, 4 for buzz)
+    // per play with no pooling/explicit disconnect — nodes GC after stop(). Fine at UI-cue
+    // cadence; revisit only if profiling shows GC pressure under rapid firing. code-audit.md.
     function playSpec(spec: CueSpec, at: number, volume: number): number {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();

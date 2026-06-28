@@ -112,7 +112,13 @@ function cloneRecipe(r) {
                 : undefined,
     };
 }
-/** Merge overrides onto the defaults, producing a fresh, fully-populated table. */
+/**
+ * Merge overrides onto the defaults, producing a fresh, fully-populated table.
+ *
+ * AUDIT-014 (Low): merge is PER CHANNEL, not per field — an override's `haptic`/`sound`/
+ * `motion` replaces the whole channel recipe (you can't tweak just `motion.count`). The
+ * README's "override just what you want" reads field-level; clarify the wording. code-audit.md.
+ */
 export function resolveEvents(overrides) {
     const out = {};
     for (const name of EVENT_NAMES) {

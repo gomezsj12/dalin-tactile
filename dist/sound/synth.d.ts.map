@@ -1,1 +1,1 @@
-{"version":3,"file":"synth.d.ts","sourceRoot":"","sources":["../../src/sound/synth.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAgB,SAAS,EAAE,MAAM,aAAa,CAAC;AAqD3D,eAAO,MAAM,SAAS,EAAE,SA0DvB,CAAC;AAEF,eAAe,SAAS,CAAC"}
+{"version":3,"file":"synth.d.ts","sourceRoot":"","sources":["../../src/sound/synth.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAgB,SAAS,EAAE,MAAM,aAAa,CAAC;AAqD3D,eAAO,MAAM,SAAS,EAAE,SAgEvB,CAAC;AAEF,eAAe,SAAS,CAAC"}

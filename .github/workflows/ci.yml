@@ -1,0 +1,49 @@
+name: CI
+
+# Gate every push / PR on the same checks an agent runs locally:
+# typecheck + build, unit tests, lint, a bundle-size budget, and a dist/ drift
+# guard. (Roadmap item "CI" — stood up by the 2026-06-27 review.)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - name: Typecheck + build
+        run: npm run build
+
+      # dist/ is the committed build output that GitHub installs pull, so a stale
+      # dist/ is a shipped bug. The build above just regenerated it — fail if that
+      # changed anything vs what's committed.
+      - name: dist/ is in sync with src/
+        run: git diff --exit-code -- dist || (echo "::error::dist/ is stale — run 'npm run build' and commit dist/." && exit 1)
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Bundle-size budget
+        run: npm run size
+
+      # Advisory only: the source predates Prettier and is hand-formatted, so it
+      # is not yet Prettier-clean (see docs/code-audit.md AUDIT-015). Adopting
+      # Prettier needs a one-time `npm run format` reformat in its own commit;
+      # after that, drop `continue-on-error` to make this a hard gate.
+      - name: Format check (advisory)
+        run: npm run format:check
+        continue-on-error: true

@@ -7,7 +7,8 @@
  * Choose haptics, sound, motion, or any combination.
  *
  * The haptic backend is a swap seam: pure-web today, native (Capacitor) later
- * behind the same surface. See notes-app/docs/haptics-roadmap.md.
+ * behind the same surface. See ROADMAP.md and docs/DEFERRED.md. (AUDIT-016: this
+ * comment previously pointed at a cross-repo path; repointed to local docs.)
  */
 import type {
   BackendProbe,
@@ -64,6 +65,10 @@ export function createTactile(config: TactileConfig = {}): Tactile {
   let scale = config.scale ?? 1;
   const debug = config.debug ?? false;
 
+  // AUDIT-009 (Low): only "silent" is branched on — "auto", "web", and undefined all
+  // resolve to web (the JSDoc on config.backend overstates an "auto = native if wired"
+  // selection that isn't implemented), and an explicit "web" is silently downgraded to
+  // silent under SSR. Doc/type vs behavior drift — see docs/code-audit.md.
   const backend =
     !isBrowser || config.backend === "silent" ? createSilentBackend() : createWebBackend();
 
@@ -114,6 +119,10 @@ export function createTactile(config: TactileConfig = {}): Tactile {
         const ctx = getAudioContext();
         if (!ctx) return;
         const channel = await resolved.create(ctx);
+        // AUDIT-001 (High): no re-check that `soundSpec === pack` here. A set({sound:false})
+        // or pack swap issued while this import/create was in flight gets clobbered — the
+        // channel re-enables itself after the caller turned it off. Fix: guard with
+        // `if (soundSpec !== pack) return;` before assigning. See docs/code-audit.md.
         sound = channel;
         soundName = channel.name;
       } catch (err) {
@@ -141,6 +150,9 @@ export function createTactile(config: TactileConfig = {}): Tactile {
     void (async () => {
       try {
         const { domMotionDriver } = await import("./motion/index.js");
+        // AUDIT-001 (High, motion extension): same stale-async race as enableSound —
+        // a set({motion:false}) during this import is clobbered. Guard with
+        // `if (motionSpec !== driver) return;` before assigning. See docs/code-audit.md.
         motion = domMotionDriver;
         motionName = domMotionDriver.name;
       } catch (err) {
@@ -153,6 +165,11 @@ export function createTactile(config: TactileConfig = {}): Tactile {
   if (config.motion) enableMotion(config.motion);
 
   // Resume audio on ANY gesture while suspended (NOT once — the bug before).
+  // AUDIT-003 (High): these 4 capturing listeners (and any AudioContext) are never
+  // removed — the returned Tactile has no dispose()/destroy(). Fine for the documented
+  // single-instance usage; leaks listeners + can exhaust the AudioContext cap under
+  // React StrictMode / HMR / SPA churn. onGesture is already a stable ref, so a
+  // dispose() can removeEventListener it. See docs/code-audit.md + docs/DEFERRED.md.
   if (isBrowser) {
     const onGesture = (): void => resumeAudio();
     for (const ev of ["pointerdown", "touchend", "mousedown", "keydown"]) {
@@ -213,6 +230,9 @@ export function createTactile(config: TactileConfig = {}): Tactile {
     error: (target) => fireEvent("error", target),
     buzz: (target) => fireEvent("buzz", target),
     play: (input, target) => {
+      // AUDIT-018 (Low): play(0) / play([]) build an empty pattern, but fire() calls
+      // backend.cancel() before checking length, so an "empty" play silently kills any
+      // in-flight vibration with no caller-visible signal. See docs/code-audit.md.
       if (typeof input === "number") {
         fire({ haptic: { steps: [{ duration: input, intensity: 1 }] } }, toTarget(target));
       } else if (Array.isArray(input)) {
@@ -222,6 +242,9 @@ export function createTactile(config: TactileConfig = {}): Tactile {
       }
     },
     set: (next) => {
+      // AUDIT-002 (High): re-merges from the IMMUTABLE constructor config.events, so two
+      // successive set({events}) calls don't accumulate — the second drops the first's
+      // overrides. Fix: keep a mutable accumulator and resolveEvents from it. code-audit.md.
       if (next.events) events = resolveEvents({ ...config.events, ...next.events });
       if (next.haptics !== undefined) hapticsOn = next.haptics;
       if (next.strength !== undefined) strength = next.strength;
@@ -232,6 +255,9 @@ export function createTactile(config: TactileConfig = {}): Tactile {
     },
     diagnose: () => buildReport(),
     test: async () => {
+      // AUDIT-010 (Low): the fixed 500ms gap is shorter than some cues (error triple-thud,
+      // success 600ms shower), so long haptics get superseded and showers overlap — test()
+      // doesn't demo each preset to completion. Derive the gap per-recipe. code-audit.md.
       for (const name of PRESET_EVENTS) {
         fireEvent(name);
         if (debug) console.log(`[tactile] ${name}`);

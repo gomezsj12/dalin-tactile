@@ -32,6 +32,8 @@ const MAX_DPR = 2;
 
 let canvas: HTMLCanvasElement | null = null;
 let ctx2d: CanvasRenderingContext2D | null = null;
+// AUDIT-013 (Low): `particles` is mutated but never reassigned — should be `const`
+// (ESLint prefer-const, set to "warn" since this review doesn't change logic). code-audit.md.
 let particles: Particle[] = [];
 let raf: number | null = null;
 const emojiCache = new Map<string, HTMLCanvasElement>();
@@ -105,6 +107,11 @@ function updateParticle(p: Particle): boolean {
   return p.life > 0 && p.opacity > 0.01;
 }
 
+// AUDIT-006 (Medium): O(n²) pairwise pass every frame, no spatial partitioning. ~125k
+// checks/frame at the MAX_ACTIVE=500 cap (a single buzz is only ~80 particles); the
+// worst case needs stacked showers/rapid taps, and is the likely jank source on low-end
+// mobile. Spatial-hash the broad phase, cap collisions above a threshold, or lower the
+// active cap. See docs/code-audit.md.
 function resolveCollisions(): void {
   const n = particles.length;
   for (let i = 0; i < n; i++) {
@@ -165,6 +172,8 @@ function frame(): void {
       if (pass === 0 && fading) continue;
       if (pass === 1 && !fading) continue;
       if (pass === 1) c.globalAlpha = p.opacity;
+      // AUDIT-012 (Low, micro-opt): a Map.get per particle per frame. Resolve the
+      // rasterized canvas once at spawn and store it on the Particle instead. code-audit.md.
       const img = getEmojiCanvas(p.emoji);
       const draw = p.fontSize * p.s * 1.5;
       const half = draw / 2;
@@ -196,6 +205,9 @@ export interface BurstOptions {
 function spawn(x: number, y: number, opts: BurstOptions): void {
   const emojis = opts.emojis && opts.emojis.length > 0 ? opts.emojis : ["✨"];
   const amount = Math.max(1, opts.count ?? 5);
+  // AUDIT-007 (Low): drops the ENTIRE burst at the cap instead of spawning the remaining
+  // headroom (min(amount, MAX_ACTIVE - length)) — feedback vanishes under rapid input
+  // exactly when the user is most active. See docs/code-audit.md.
   if (particles.length + amount > MAX_ACTIVE) return;
   const gx = opts.gravityX ?? 0;
   const gy = opts.gravityY ?? -1.5; // slight upward bias, like a fountain
@@ -228,6 +240,10 @@ export function particleBurst(x: number, y: number, opts: BurstOptions = {}): vo
   startLoop();
   const duration = opts.duration ?? 0;
   if (duration > 0) {
+    // AUDIT-005 (Medium): these setTimeouts are untracked/uncancelable and re-spawn at the
+    // ORIGINAL captured (x, y) — they ignore scroll/element-movement/unmount and can't be
+    // stopped if motion is disabled mid-shower. Track timer ids + expose a cancel (tie into
+    // the dispose() of AUDIT-003); re-resolve the anchor per tick. See docs/code-audit.md.
     const interval = 150;
     const reps = Math.floor(duration / interval);
     for (let i = 1; i <= reps; i++) {

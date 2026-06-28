@@ -36,6 +36,10 @@ export function stepsToPattern(steps: HapticStep[], strength = 1): number[] {
       add(false, dur);
       continue;
     }
+    // AUDIT-011 (Low): for a long, low-intensity step this PWM loop emits ~dur/10 windows
+    // (×2 entries) — a custom 2500ms @ 0.5 step → ~500-element pattern, and some engines
+    // cap pattern length. Built-in presets are safe (full intensity collapses to one
+    // pulse). Consider a cap / larger PWM_PERIOD_MS for long steps. See docs/code-audit.md.
     let remaining = dur;
     while (remaining > 0.5) {
       const w = Math.min(PWM_PERIOD_MS, remaining);

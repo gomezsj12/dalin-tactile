@@ -14,7 +14,13 @@ import type { EventName, EventOverrides, EventTable } from "./types.js";
  */
 export declare const DEFAULT_EVENTS: EventTable;
 declare const EVENT_NAMES: EventName[];
-/** Merge overrides onto the defaults, producing a fresh, fully-populated table. */
+/**
+ * Merge overrides onto the defaults, producing a fresh, fully-populated table.
+ *
+ * AUDIT-014 (Low): merge is PER CHANNEL, not per field — an override's `haptic`/`sound`/
+ * `motion` replaces the whole channel recipe (you can't tweak just `motion.count`). The
+ * README's "override just what you want" reads field-level; clarify the wording. code-audit.md.
+ */
 export declare function resolveEvents(overrides?: EventOverrides): EventTable;
 export { EVENT_NAMES as PRESET_EVENTS };
 //# sourceMappingURL=presets.d.ts.map

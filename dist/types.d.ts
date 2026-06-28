@@ -133,7 +133,11 @@ export interface TactileConfig extends ChannelConfig {
     volume?: number;
     /** Global motion scale. */
     scale?: number;
-    /** Backend choice. `"auto"` = native if wired, else web. (`"native"` deferred.) */
+    /**
+     * Backend choice. `"auto"` = native if wired, else web. (`"native"` deferred.)
+     * AUDIT-009 (Low): this JSDoc overstates today's behavior — `index.ts` only branches
+     * on `"silent"`, so `"auto"` and `"web"` both resolve to web. See docs/code-audit.md.
+     */
     backend?: "auto" | "web" | "silent";
     debug?: boolean;
 }
