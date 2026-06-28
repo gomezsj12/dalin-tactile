@@ -2,6 +2,13 @@
 
 What changed, when, and why. Most recent first.
 
+## 2026-06-28 (AUDIT-009 backend docs alignment)
+
+- **AUDIT-009 fixed:** `TactileConfig.backend` JSDoc and the backend-selection source
+  comment now match current behavior: browser `"auto"`/`"web"`/omitted use the web
+  backend, `"silent"` forces no-op, and SSR/no DOM always returns silent. Native remains
+  deferred; runtime behavior is unchanged.
+
 ## 2026-06-28 (AUDIT-014 override docs clarification)
 
 - **AUDIT-014 fixed:** README Tuning now clarifies event override granularity: omitted

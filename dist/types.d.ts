@@ -134,9 +134,10 @@ export interface TactileConfig extends ChannelConfig {
     /** Global motion scale. */
     scale?: number;
     /**
-     * Backend choice. `"auto"` = native if wired, else web. (`"native"` deferred.)
-     * AUDIT-009 (Low): this JSDoc overstates today's behavior — `index.ts` only branches
-     * on `"silent"`, so `"auto"` and `"web"` both resolve to web. See docs/code-audit.md.
+     * Backend choice. In browsers, `"auto"`, `"web"`, and an omitted backend all use the
+     * current pure-web backend; `"silent"` forces the no-op backend. Outside the browser
+     * / during SSR, `createTactile()` always returns a silent no-op object. A native
+     * backend remains deferred behind the same surface.
      */
     backend?: "auto" | "web" | "silent";
     debug?: boolean;

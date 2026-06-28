@@ -1,11 +1,11 @@
 # Code Audit — Findings Catalogue
 
-> Last updated: **2026-06-28** — fixed AUDIT-014 after the first comprehensive review
+> Last updated: **2026-06-28** — fixed AUDIT-009 after the first comprehensive review
 > of `@dalin/tactile`,
 > and the run that stood up this review system. Session log:
 > [`reviews/2026-06-27-initial-comprehensive-review.md`](./reviews/2026-06-27-initial-comprehensive-review.md).
-> This was a **documentation + review pass — no library logic was changed**; the only
-> source edits are additive `// AUDIT-NNN` locator comments + clarifying notes.
+> This was a **documentation + review pass — no library logic was changed**; source
+> edits are comment/JSDoc-only clarifications plus `// AUDIT-NNN` locator comments.
 
 This file catalogues every finding from code reviews. **Findings are never deleted** —
 when fixed, their status is updated to "Fixed" with the date/commit.
@@ -34,8 +34,8 @@ in [Verified sound](#verified-sound-no-finding) so they aren't re-litigated).
 | Critical | 0 | 0 | 0 |
 | High | 3 | 0 | 3 |
 | Medium | 3 | 0 | 3 |
-| Low | 11 | 2 | 13 |
-| **Total** | **17** | **2** | **19** |
+| Low | 10 | 3 | 13 |
+| **Total** | **16** | **3** | **19** |
 
 | ID | Sev | Title |
 |----|-----|-------|
@@ -219,7 +219,7 @@ boost per-cue gains. Treat the boost as a tuning knob with a known clip risk.
 
 **Severity:** Low
 **Files:** `src/index.ts` (~67–68), `src/types.ts` (`TactileConfig.backend` ~155–156)
-**Status:** Open
+**Status:** Fixed (2026-06-28)
 
 `TactileConfig.backend` accepts `"auto" | "web" | "silent"` and its JSDoc says
 `"auto" = native if wired, else web`, but `index.ts` only branches on `=== "silent"`:
@@ -231,6 +231,12 @@ intent). Type-faithful but misleading.
 **Recommendation:** Keep the forward-looking type, but soften the JSDoc to "auto/web
 both select the web backend today; native is deferred (see ROADMAP)", or branch on
 `"auto"` explicitly. Low priority — it's documentation accuracy, not a runtime bug.
+
+**Resolution:** Updated `TactileConfig.backend` JSDoc and the adjacent backend-selection
+source comment to document current behavior: browsers use the pure-web backend for
+`"auto"`, `"web"`, or an omitted backend, `"silent"` forces no-op, and SSR/no DOM always
+returns a silent no-op object. Native remains deferred; runtime behavior and accepted
+config values were unchanged.
 
 ---
 

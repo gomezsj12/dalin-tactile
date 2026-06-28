@@ -65,10 +65,8 @@ export function createTactile(config: TactileConfig = {}): Tactile {
   let scale = config.scale ?? 1;
   const debug = config.debug ?? false;
 
-  // AUDIT-009 (Low): only "silent" is branched on — "auto", "web", and undefined all
-  // resolve to web (the JSDoc on config.backend overstates an "auto = native if wired"
-  // selection that isn't implemented), and an explicit "web" is silently downgraded to
-  // silent under SSR. Doc/type vs behavior drift — see docs/code-audit.md.
+  // Browser runtime uses the pure-web backend unless explicitly silenced; SSR/no DOM
+  // always gets the silent backend so construction remains safe at module scope.
   const backend =
     !isBrowser || config.backend === "silent" ? createSilentBackend() : createWebBackend();
 
