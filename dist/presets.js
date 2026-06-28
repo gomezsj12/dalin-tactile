@@ -85,18 +85,19 @@ export const DEFAULT_EVENTS = {
         motion: { kind: "particles", emojis: ["⛔️", "🚫", "💢"], count: 6 },
     },
     buzz: {
-        // a rapid rattle — four quick pulses that build, like a little vibration burst
+        // a continuous, several-seconds buzz — all three channels run for the duration
         haptic: {
-            steps: [
-                { duration: 20, intensity: 0.6 },
-                { delay: 24, duration: 20, intensity: 0.7 },
-                { delay: 24, duration: 20, intensity: 0.8 },
-                { delay: 24, duration: 28, intensity: 0.95 },
-            ],
+            steps: [{ duration: 2500, intensity: 1 }], // one long, steady vibration
             ios: "light",
         },
-        sound: "tick",
-        motion: { kind: "particles", emojis: ["📳", "🐝", "💫", "✨"], count: 6, flip: true },
+        sound: "buzz", // sustained buzzing tone (~2.5s), see the synth pack
+        motion: {
+            kind: "particles",
+            emojis: ["📳", "🐝", "💫", "✨"],
+            count: 6,
+            duration: 2500, // keep the emoji shower going for the whole buzz
+            flip: true,
+        },
     },
 };
 const EVENT_NAMES = Object.keys(DEFAULT_EVENTS);

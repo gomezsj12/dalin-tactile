@@ -499,8 +499,18 @@
 
     <script type="module">
       import { createTactile } from "../dist/index.js";
+      import { domMotionDriver } from "../dist/motion/index.js";
 
-      const t = createTactile({ haptics: true, sound: true, motion: true, debug: true });
+      // Always render motion, even with the OS "reduce motion" setting on — the
+      // whole point of the demo is to feel the feedback (mirrors the public site).
+      const alwaysMotion = {
+        name: "dom-always",
+        render(spec, target, runtime) {
+          domMotionDriver.render(spec, target, { ...runtime, reducedMotion: false });
+        },
+      };
+
+      const t = createTactile({ haptics: true, sound: true, motion: alwaysMotion, debug: true });
       window.tactile = t; // exposed for quick console / preview debugging
       const $ = (id) => document.getElementById(id);
 

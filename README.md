@@ -47,7 +47,7 @@ const t = createTactile({ haptics: true, sound: true, motion: true });
 t.selection();            // a light tick + soft click
 t.impact("heavy", el);    // strong double‑thud + boom + a springy "boop" on `el`
 t.success(clickEvent);    // success buzz + chime + an emoji shower at the tap point
-t.buzz();                 // a rapid rattle — a playful buzz
+t.buzz();                 // a continuous ~2.5s buzz — vibration + sound + emoji shower
 
 // One channel only? Drop-in replacement for a plain haptics helper:
 const haptics = createTactile();            // haptics only
@@ -61,7 +61,7 @@ The semantic methods are Capacitor / iOS `UIFeedbackGenerator`‑shaped:
 | `selection()` | a value snapping to a new state |
 | `impact("light" \| "medium" \| "heavy")` · `light()` / `medium()` / `heavy()` | a tap → a firm press → a heavy thud |
 | `notification("success" \| "warning" \| "error")` · `success()` / `warning()` / `error()` | confirmation / caution / rejection |
-| `buzz()` | a rapid rattle of ticks — a playful buzz |
+| `buzz()` | a continuous multi-second buzz — sustained vibration, sound, and emoji shower |
 | `play(nameOrSteps, target?)` | a preset, a raw duration in ms, or a custom step sequence |
 
 Any method optionally takes a **target** (an `Element`, a `MouseEvent`, or `{ x, y }`) so the motion channel knows where to anchor.
