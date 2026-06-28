@@ -4,6 +4,7 @@ import { createSilentBackend } from "./backends/silent.js";
 import { detectPlatform } from "./platform.js";
 import { iosSwitchAvailable } from "./ios-switch.js";
 const isBrowser = typeof window !== "undefined";
+const TEST_MIN_GAP_MS = 500;
 export function createTactile(config = {}) {
     let events = resolveEvents(config.events);
     let hapticsOn = config.haptics ?? true;
@@ -210,17 +211,39 @@ export function createTactile(config = {}) {
         },
         diagnose: () => buildReport(),
         test: async () => {
-            // AUDIT-010 (Low): the fixed 500ms gap is shorter than some cues (error triple-thud,
-            // success 600ms shower), so long haptics get superseded and showers overlap — test()
-            // doesn't demo each preset to completion. Derive the gap per-recipe. code-audit.md.
             for (const name of PRESET_EVENTS) {
                 fireEvent(name);
                 if (debug)
                     console.log(`[tactile] ${name}`);
-                await new Promise((r) => setTimeout(r, 500));
+                await new Promise((r) => setTimeout(r, recipeTestGap(events[name], strength)));
             }
         },
     };
+}
+function recipeTestGap(recipe, strength) {
+    return Math.max(TEST_MIN_GAP_MS, hapticDuration(recipe.haptic, strength), motionDuration(recipe.motion));
+}
+function hapticDuration(recipe, strength) {
+    if (!recipe)
+        return 0;
+    return recipe.steps.reduce((total, step) => total + (step.delay ?? 0) + (step.duration ?? 0) * strength, 0);
+}
+function motionDuration(motion) {
+    if (!motion)
+        return 0;
+    const specs = Array.isArray(motion) ? motion : [motion];
+    return specs.reduce((longest, spec) => Math.max(longest, motionSpecDuration(spec)), 0);
+}
+function motionSpecDuration(spec) {
+    switch (spec.kind) {
+        case "particles":
+            return spec.duration ?? 0;
+        case "boop":
+            return spec.timing ?? 300;
+        case "custom":
+        case "none":
+            return 0;
+    }
 }
 function toTarget(target) {
     if (!target || typeof window === "undefined")

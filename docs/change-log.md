@@ -2,6 +2,14 @@
 
 What changed, when, and why. Most recent first.
 
+## 2026-06-28 (AUDIT-010 test spacing)
+
+- **AUDIT-010 fixed:** `createTactile().test()` now spaces each preset by the
+  recipe's haptic and motion duration, with the existing 500 ms minimum preserved
+  for short cues.
+- **Tests added:** Focused fake-timer coverage now pins long haptic and motion
+  recipe spacing in the diagnostic sequence.
+
 ## 2026-06-28 (AUDIT-011 PWM expansion cap)
 
 - **AUDIT-011 fixed:** Long fractional-intensity haptic steps now widen their PWM

@@ -1,6 +1,6 @@
 # Code Audit — Findings Catalogue
 
-> Last updated: **2026-06-28** — fixed AUDIT-011 after the first comprehensive review
+> Last updated: **2026-06-28** — fixed AUDIT-010 after the first comprehensive review
 > of `@dalin/tactile`,
 > and the run that stood up this review system. Session log:
 > [`reviews/2026-06-27-initial-comprehensive-review.md`](./reviews/2026-06-27-initial-comprehensive-review.md).
@@ -34,8 +34,8 @@ in [Verified sound](#verified-sound-no-finding) so they aren't re-litigated).
 | Critical | 0 | 0 | 0 |
 | High | 3 | 0 | 3 |
 | Medium | 2 | 1 | 3 |
-| Low | 9 | 4 | 13 |
-| **Total** | **14** | **5** | **19** |
+| Low | 8 | 5 | 13 |
+| **Total** | **13** | **6** | **19** |
 
 | ID | Sev | Title |
 |----|-----|-------|
@@ -249,7 +249,7 @@ config values were unchanged.
 
 **Severity:** Low
 **Files:** `src/index.ts` (`test`, ~234–240)
-**Status:** Open
+**Status:** Fixed (2026-06-28)
 
 `test()` waits a fixed 500 ms between presets, which is shorter than several cues' total
 duration (e.g. the `error` triple-thud, the `success` 600 ms shower). Long haptics get
@@ -259,6 +259,11 @@ mildest case.)
 
 **Recommendation:** Derive the inter-event delay from each recipe's total haptic/motion
 duration (or special-case the long ones) so each preset plays to completion.
+
+**Resolution:** `test()` now derives each inter-preset pause from the current recipe's
+haptic timing (including step delays and the active strength multiplier) and known
+motion timing (`particles.duration`, `boop.timing ?? 300`, arrays by longest duration),
+while preserving the existing 500 ms floor for short cues.
 
 ---
 

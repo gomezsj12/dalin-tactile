@@ -15,8 +15,10 @@ import type {
   EventName,
   EventRecipe,
   EventTable,
+  HapticRecipe,
   MotionDriver,
   MotionRuntime,
+  MotionSpec,
   MotionTarget,
   SoundChannel,
   SoundPack,
@@ -56,6 +58,7 @@ export type {
 } from "./types.js";
 
 const isBrowser = typeof window !== "undefined";
+const TEST_MIN_GAP_MS = 500;
 
 export function createTactile(config: TactileConfig = {}): Tactile {
   let events: EventTable = resolveEvents(config.events);
@@ -253,16 +256,40 @@ export function createTactile(config: TactileConfig = {}): Tactile {
     },
     diagnose: () => buildReport(),
     test: async () => {
-      // AUDIT-010 (Low): the fixed 500ms gap is shorter than some cues (error triple-thud,
-      // success 600ms shower), so long haptics get superseded and showers overlap — test()
-      // doesn't demo each preset to completion. Derive the gap per-recipe. code-audit.md.
       for (const name of PRESET_EVENTS) {
         fireEvent(name);
         if (debug) console.log(`[tactile] ${name}`);
-        await new Promise((r) => setTimeout(r, 500));
+        await new Promise((r) => setTimeout(r, recipeTestGap(events[name]!, strength)));
       }
     },
   };
+}
+
+function recipeTestGap(recipe: EventRecipe, strength: number): number {
+  return Math.max(TEST_MIN_GAP_MS, hapticDuration(recipe.haptic, strength), motionDuration(recipe.motion));
+}
+
+function hapticDuration(recipe: HapticRecipe | undefined, strength: number): number {
+  if (!recipe) return 0;
+  return recipe.steps.reduce((total, step) => total + (step.delay ?? 0) + (step.duration ?? 0) * strength, 0);
+}
+
+function motionDuration(motion: EventRecipe["motion"]): number {
+  if (!motion) return 0;
+  const specs = Array.isArray(motion) ? motion : [motion];
+  return specs.reduce((longest, spec) => Math.max(longest, motionSpecDuration(spec)), 0);
+}
+
+function motionSpecDuration(spec: MotionSpec): number {
+  switch (spec.kind) {
+    case "particles":
+      return spec.duration ?? 0;
+    case "boop":
+      return spec.timing ?? 300;
+    case "custom":
+    case "none":
+      return 0;
+  }
 }
 
 function toTarget(target?: Targetish): MotionTarget {
