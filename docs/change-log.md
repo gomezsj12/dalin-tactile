@@ -2,6 +2,13 @@
 
 What changed, when, and why. Most recent first.
 
+## 2026-06-28 (AUDIT-013 prefer-const cleanup)
+
+- **AUDIT-013 fixed:** `src/motion/particles.ts` now keeps the shared mutable particle
+  array behind a `const` binding, and ESLint `prefer-const` is back to an error.
+- **Generated output rebuilt:** `dist/` refreshed from `src/` so GitHub installs stay in
+  sync.
+
 ## 2026-06-27 (First comprehensive code review + review/docs system stood up)
 
 - **Review + docs system created** (ported & fully re-tuned from `../notes-app` for a

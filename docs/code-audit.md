@@ -1,6 +1,7 @@
 # Code Audit — Findings Catalogue
 
-> Last updated: **2026-06-27** — the **first comprehensive review** of `@dalin/tactile`,
+> Last updated: **2026-06-28** — fixed AUDIT-013 after the first comprehensive review
+> of `@dalin/tactile`,
 > and the run that stood up this review system. Session log:
 > [`reviews/2026-06-27-initial-comprehensive-review.md`](./reviews/2026-06-27-initial-comprehensive-review.md).
 > This was a **documentation + review pass — no library logic was changed**; the only
@@ -33,8 +34,8 @@ in [Verified sound](#verified-sound-no-finding) so they aren't re-litigated).
 | Critical | 0 | 0 | 0 |
 | High | 3 | 0 | 3 |
 | Medium | 3 | 0 | 3 |
-| Low | 13 | 0 | 13 |
-| **Total** | **19** | **0** | **19** |
+| Low | 12 | 1 | 13 |
+| **Total** | **18** | **1** | **19** |
 
 | ID | Sev | Title |
 |----|-----|-------|
@@ -286,14 +287,15 @@ opportunistically when touching the engine for AUDIT-006.
 
 **Severity:** Low
 **Files:** `src/motion/particles.ts` (~35)
-**Status:** Open (surfaced by ESLint `prefer-const`)
+**Status:** Fixed (2026-06-28)
 
 `let particles: Particle[] = []` is mutated (push/pop/index) but never reassigned, so it
 should be `const`. ESLint flags it; the rule is set to **warn** (not error) in
 `eslint.config.js` only because this review does not change library logic — flip it back
 to `error` once the source is changed.
 
-**Recommendation:** `const particles: Particle[] = []`.
+**Resolution:** Changed the binding to `const` and restored `prefer-const` to an ESLint
+error.
 
 ---
 

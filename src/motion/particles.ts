@@ -32,9 +32,7 @@ const MAX_DPR = 2;
 
 let canvas: HTMLCanvasElement | null = null;
 let ctx2d: CanvasRenderingContext2D | null = null;
-// AUDIT-013 (Low): `particles` is mutated but never reassigned — should be `const`
-// (ESLint prefer-const, set to "warn" since this review doesn't change logic). code-audit.md.
-let particles: Particle[] = [];
+const particles: Particle[] = [];
 let raf: number | null = null;
 const emojiCache = new Map<string, HTMLCanvasElement>();
 

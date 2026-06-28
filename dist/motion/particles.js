@@ -12,9 +12,7 @@ const ANIM_FRAMES = 120;
 const MAX_DPR = 2;
 let canvas = null;
 let ctx2d = null;
-// AUDIT-013 (Low): `particles` is mutated but never reassigned — should be `const`
-// (ESLint prefer-const, set to "warn" since this review doesn't change logic). code-audit.md.
-let particles = [];
+const particles = [];
 let raf = null;
 const emojiCache = new Map();
 function dpr() {

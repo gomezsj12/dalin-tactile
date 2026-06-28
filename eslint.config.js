@@ -32,11 +32,7 @@ export default tseslint.config(
         "error",
         { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
       ],
-      // prefer-const is a real (Low) finding in src/motion/particles.ts (`let
-      // particles` is never reassigned — see docs/code-audit.md AUDIT-014), but
-      // this review does NOT change library logic, so keep it a non-blocking
-      // warning. Flip back to "error" once the source is changed to `const`.
-      "prefer-const": "warn",
+      "prefer-const": "error",
     },
   },
   // Keep ESLint out of Prettier's lane (formatting handled by Prettier).
