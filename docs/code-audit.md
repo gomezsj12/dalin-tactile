@@ -4,8 +4,10 @@
 > of `@dalin/tactile`,
 > and the run that stood up this review system. Session log:
 > [`reviews/2026-06-27-initial-comprehensive-review.md`](./reviews/2026-06-27-initial-comprehensive-review.md).
-> This was a **documentation + review pass — no library logic was changed**; source
-> edits are comment/JSDoc-only clarifications plus `// AUDIT-NNN` locator comments.
+> The initial pass (2026-06-27) changed **no library logic** — only `// AUDIT-NNN`
+> locator comments + clarifying notes. Subsequent fix commits (2026-06-28) **do** change
+> logic where a finding warranted it (AUDIT-010, AUDIT-011, AUDIT-013); each is logged in
+> [`change-log.md`](./change-log.md) with its `dist/` rebuild.
 
 This file catalogues every finding from code reviews. **Findings are never deleted** —
 when fixed, their status is updated to "Fixed" with the date/commit.
