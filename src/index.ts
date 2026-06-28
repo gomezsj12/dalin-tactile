@@ -211,6 +211,7 @@ export function createTactile(config: TactileConfig = {}): Tactile {
     success: (target) => fireEvent("success", target),
     warning: (target) => fireEvent("warning", target),
     error: (target) => fireEvent("error", target),
+    buzz: (target) => fireEvent("buzz", target),
     play: (input, target) => {
       if (typeof input === "number") {
         fire({ haptic: { steps: [{ duration: input, intensity: 1 }] } }, toTarget(target));

@@ -23,7 +23,8 @@ export type EventName =
   | "heavy"
   | "success"
   | "warning"
-  | "error";
+  | "error"
+  | "buzz";
 
 /* ── haptic channel ─────────────────────────────────────────────────── */
 
@@ -183,6 +184,8 @@ export interface Tactile {
   success(target?: Targetish): void;
   warning(target?: Targetish): void;
   error(target?: Targetish): void;
+  /** A rapid rattle of ticks — a playful "buzz" of feedback. */
+  buzz(target?: Targetish): void;
 
   /** Fire an event by name, or raw haptic input, with an optional motion target. */
   play(input: EventName | HapticStep[] | number, target?: Targetish): void;

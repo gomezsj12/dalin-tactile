@@ -1,2 +1,6 @@
 # Normalize line endings to LF in the repo for cross-platform consistency.
 * text=auto eol=lf
+
+# dist/ is the committed build output (so the package installs from GitHub with
+# no build step). Treat it as generated: collapse it in diffs and PR reviews.
+dist/** linguist-generated=true

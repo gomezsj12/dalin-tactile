@@ -10,6 +10,8 @@ Status and planned work for **@dalin/tactile**. Contributions welcome.
 - [x] Canvas emoji-particle engine + springy **boop**, `prefers-reduced-motion` aware
 - [x] `diagnose()` / `test()` on-device diagnostics
 - [x] SSR-safe · zero runtime deps · TypeScript types · unit tests
+- [x] **Live demo site** — [tactile.dalin.pro](https://tactile.dalin.pro) (feel it on your phone)
+- [x] Installable from GitHub (`github:gomezsj12/dalin-tactile`) across npm / pnpm / yarn / bun
 
 ## Next
 
@@ -18,7 +20,6 @@ Status and planned work for **@dalin/tactile**. Contributions welcome.
 - **Native backend (Capacitor).** A `native` `HapticBackend` behind the same surface, so apps shipping a native shell get guaranteed OS haptics — real amplitude, no iOS-switch fragility. The API is already shaped for this swap.
 - **Framework adapters.** A tiny React hook (`useTactile`) — one shared instance, ergonomic call sites.
 - **Richer packs.** An optional curated **CC0 sample pack** (freesound / Kenney); example `MotionDriver`s wrapping `canvas-confetti` / `tsParticles` / `react-rewards`.
-- **Docs / demo site.** Host the `demo/` so anyone can feel it on their phone.
 
 ## Later / ideas
 

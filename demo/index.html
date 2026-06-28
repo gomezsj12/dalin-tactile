@@ -1,114 +1,500 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="dark">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>@dalin/tactile</title>
+    <title>@dalin/tactile — local demo</title>
+    <meta
+      name="description"
+      content="Local demo for @dalin/tactile — haptics, sound & motion, plus on-device diagnostics."
+    />
+    <meta name="theme-color" content="#1a1a1a" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
     <style>
+      /* ── design language mirrored from tactile.dalin.pro ───────────────── */
       :root {
-        --bg: #14130f;
-        --surface: #1f1d17;
-        --border: #353129;
-        --fg: #f3efe4;
-        --muted: #a39c89;
-        --accent: oklch(0.78 0.15 90);
-        --accent-ink: #2a2200;
+        color-scheme: dark;
+        --bg: #181818;
+        --surface: #202020;
+        --surface-2: #262626;
+        --surface-3: #2e2e2e;
+        --border: #2b2b2b;
+        --border-2: #393939;
+        --fg: #ededed;
+        --fg-dim: #c2c2c2;
+        --muted: #888;
+        --muted-2: #686868;
+        --accent: #f4bf3f;
+        --blue: #4dabf7;
+        --c-selection: #79b0e8;
+        --c-light: #3aced6;
+        --c-medium: #3fb1ea;
+        --c-heavy: #9e8afa;
+        --c-success: #58cd78;
+        --c-warning: #f4bf3f;
+        --c-error: #fb575d;
+        --c-buzz: #f86ab5;
+        --bounce: cubic-bezier(0.34, 1.7, 0.5, 1);
+        --maxw: 780px;
+        --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        --font-display: "Fredoka", var(--font-sans), sans-serif;
+        --font-mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
       }
-      * { box-sizing: border-box; }
+      /* exact colors where the browser supports lab() (matches the public site) */
+      @supports (color: lab(0% 0 0)) {
+        :root {
+          --accent: lab(80.4883% 11.0497 67.9168);
+          --c-selection: lab(69.5563% -7.03877 -34.2781);
+          --c-light: lab(75.6428% -37.5959 -15.4539);
+          --c-medium: lab(67.6086% -18.6932 -38.6575);
+          --c-heavy: lab(63.0832% 27.1685 -53.9644);
+          --c-success: lab(74.1832% -48.2163 31.6859);
+          --c-warning: lab(80.4883% 11.0497 67.9168);
+          --c-error: lab(60.8138% 63.7243 32.9224);
+          --c-buzz: lab(64.9601% 60.7233 -11.7573);
+        }
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+      html,
       body {
         margin: 0;
+        padding: 0;
+      }
+      body {
+        background: radial-gradient(85% 50% at 50% -12%, #212121, var(--bg) 58%);
+        background-attachment: fixed;
         min-height: 100dvh;
-        background: radial-gradient(120% 80% at 50% 0%, #1d1b14, var(--bg));
         color: var(--fg);
-        font: 16px/1.5 ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+        font-family: var(--font-sans);
+        font-size: 16px;
+        line-height: 1.55;
+        -webkit-font-smoothing: antialiased;
         -webkit-tap-highlight-color: transparent;
-        display: grid;
-        place-items: start center;
-        padding: 32px 20px 64px;
       }
-      main { width: 100%; max-width: 460px; }
-      h1 { font-size: 28px; margin: 0; letter-spacing: -0.02em; }
-      h1 b { color: var(--accent); font-weight: 800; }
-      .sub { color: var(--muted); margin: 4px 0 24px; }
-      .panel {
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        padding: 16px;
-        margin-bottom: 16px;
+      a {
+        color: inherit;
+        text-decoration: none;
       }
-      .row { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
-      .row + .row { margin-top: 12px; }
-      label.tog { display: inline-flex; gap: 8px; align-items: center; cursor: pointer; user-select: none; }
-      input[type="range"] { accent-color: var(--accent); flex: 1; }
-      .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-      button {
-        appearance: none;
-        border: 1px solid var(--border);
-        background: #26241c;
-        color: var(--fg);
-        font: inherit;
-        font-weight: 600;
-        padding: 14px 12px;
-        border-radius: 12px;
-        cursor: pointer;
-        transition: border-color 0.15s, background 0.15s;
-      }
-      button:hover { border-color: var(--accent); }
-      button:active { background: #2e2b20; }
-      button.accent { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
-      .span2 { grid-column: 1 / -1; }
-      pre {
-        background: #100f0b;
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        padding: 12px;
-        font-size: 12px;
-        color: var(--muted);
-        overflow: auto;
-        max-height: 240px;
-        white-space: pre-wrap;
+      h1,
+      h2 {
+        font-size: inherit;
+        font-weight: inherit;
         margin: 0;
       }
-      .hint { color: var(--muted); font-size: 13px; margin-top: 8px; }
+      img,
+      svg {
+        display: block;
+        vertical-align: middle;
+      }
+      button {
+        font: inherit;
+        color: inherit;
+        background: transparent;
+        border: 0;
+        cursor: pointer;
+      }
+      ::selection {
+        background: var(--accent);
+        color: #fff;
+      }
+
+      .page {
+        max-width: var(--maxw);
+        margin: 0 auto;
+        padding: 20px 22px 56px;
+      }
+      .topbar {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 6px;
+      }
+      .ghlink {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 12px;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--muted);
+        border-radius: 10px;
+        transition: color 0.15s, background 0.15s;
+      }
+      .ghlink svg {
+        width: 17px;
+        height: 17px;
+      }
+      @media (hover: hover) {
+        .ghlink:hover {
+          color: var(--fg);
+          background: var(--surface);
+        }
+      }
+
+      .hero {
+        display: flex;
+        justify-content: center;
+        padding: 28px 0 20px;
+      }
+      .demo {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+      }
+      .wm {
+        margin: 0 0 6px;
+        font-family: var(--font-display);
+        font-size: 80px;
+        font-weight: 600;
+        line-height: 1;
+        text-align: center;
+        white-space: nowrap;
+        color: var(--fg);
+      }
+      .wm__ch {
+        display: inline-block;
+        will-change: transform;
+      }
+      @media (hover: hover) {
+        .wm__ch {
+          transition: transform 0.2s var(--bounce);
+        }
+        .wm__ch:hover {
+          transform: translateY(-6px) scale(1.12);
+        }
+      }
+      .wm__sub {
+        margin: 0 0 30px;
+        font-size: 14px;
+        color: var(--muted);
+        text-align: center;
+      }
+
+      .events {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 13px;
+        width: 540px;
+        max-width: 100%;
+      }
+      .ev {
+        --c: var(--muted);
+        aspect-ratio: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        font-weight: 600;
+        text-align: center;
+        color: var(--c);
+        background: var(--c);
+        border: 1px solid var(--c);
+        border-radius: 18px;
+        transition: transform 0.1s, background 0.15s, border-color 0.15s;
+      }
+      @supports (color: color-mix(in lab, red, red)) {
+        .ev {
+          color: color-mix(in oklch, var(--c) 84%, white);
+          background: color-mix(in oklch, var(--c) 14%, transparent);
+          border: 1px solid color-mix(in oklch, var(--c) 30%, transparent);
+        }
+      }
+      @media (hover: hover) {
+        .ev:hover {
+          background: var(--c);
+          border-color: var(--c);
+        }
+        @supports (color: color-mix(in lab, red, red)) {
+          .ev:hover {
+            background: color-mix(in oklch, var(--c) 23%, transparent);
+            border-color: color-mix(in oklch, var(--c) 50%, transparent);
+          }
+        }
+      }
+      .ev--selection { --c: var(--c-selection); }
+      .ev--light { --c: var(--c-light); }
+      .ev--medium { --c: var(--c-medium); }
+      .ev--heavy { --c: var(--c-heavy); }
+      .ev--success { --c: var(--c-success); }
+      .ev--warning { --c: var(--c-warning); }
+      .ev--error { --c: var(--c-error); }
+      .ev--buzz { --c: var(--c-buzz); }
+
+      .section {
+        margin-top: 54px;
+      }
+      .section__title {
+        margin: 0 0 12px;
+        font-size: 15px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        color: var(--fg);
+      }
+      .tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2px;
+        margin-bottom: 10px;
+      }
+      .tab {
+        padding: 6px 11px;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--muted-2);
+        border-radius: 8px;
+        transition: color 0.15s, background 0.15s;
+      }
+      @media (hover: hover) {
+        .tab:hover { color: var(--fg-dim); }
+      }
+      .tab[data-active="true"] {
+        color: var(--fg);
+        background: var(--surface-2);
+      }
+      .code {
+        position: relative;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+      }
+      .code pre {
+        margin: 0;
+        padding: 16px 18px;
+        font-family: var(--font-mono);
+        font-size: 13.5px;
+        line-height: 1.7;
+        color: var(--fg-dim);
+        overflow-x: auto;
+      }
+      .code--install pre {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding-right: 78px;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+      .code__prompt {
+        color: var(--muted-2);
+        user-select: none;
+      }
+      .code__copy {
+        position: absolute;
+        top: 11px;
+        right: 11px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 7px;
+        font-size: 12.5px;
+        font-weight: 600;
+        color: var(--muted-2);
+        border-radius: 7px;
+        transition: color 0.15s, background 0.15s;
+      }
+      .code--install .code__copy {
+        top: 50%;
+        transform: translateY(-50%);
+      }
+      @media (hover: hover) {
+        .code__copy:hover {
+          color: var(--fg);
+          background: var(--surface-2);
+        }
+      }
+      .code__copy[data-done="true"] {
+        color: var(--c-success);
+      }
+      .code__copy svg {
+        width: 14px;
+        height: 14px;
+      }
+      .install-note {
+        margin: 11px 2px 0;
+        font-size: 13px;
+        color: var(--muted-2);
+      }
+      .install-note code {
+        font-family: var(--font-mono);
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      /* ── diagnostics (added to the public design) ──────────────────────── */
+      .diag-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+      .btn {
+        padding: 10px 16px;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--fg);
+        background: var(--surface-2);
+        border: 1px solid var(--border-2);
+        border-radius: 10px;
+        transition: border-color 0.15s, background 0.15s;
+      }
+      @media (hover: hover) {
+        .btn:hover {
+          border-color: var(--muted);
+          background: var(--surface-3);
+        }
+      }
+      #out {
+        max-height: 320px;
+        overflow: auto;
+        white-space: pre-wrap;
+        color: var(--muted);
+      }
+
+      .footer {
+        margin-top: 56px;
+        font-size: 13px;
+        line-height: 1.9;
+        text-align: center;
+        color: var(--muted-2);
+      }
+      .footer a {
+        font-weight: 600;
+        color: var(--muted);
+      }
+      @media (hover: hover) {
+        .footer a:hover { color: var(--accent); }
+      }
+      .footer__meta {
+        font-family: var(--font-mono);
+        font-size: 12px;
+      }
+
+      @media (max-width: 720px) {
+        .hero { padding: 12px 0 6px; }
+        .wm { font-size: 62px; }
+        .events {
+          grid-template-columns: repeat(2, 1fr);
+          width: 100%;
+          max-width: none;
+        }
+        .ev { font-size: 21px; }
+        /* Install/Usage are reference docs — hidden on phones, as on the public site… */
+        .section { display: none; }
+        /* …but Diagnostics is the on-device essential, so keep it. */
+        .section--diag { display: block; }
+      }
     </style>
   </head>
   <body>
-    <main>
-      <h1><b>@dalin/tactile</b></h1>
-      <p class="sub">haptics · sound · motion — one call, three channels.</p>
-
-      <div class="panel">
-        <div class="row">
-          <label class="tog"><input type="checkbox" id="ch-haptics" checked /> haptics</label>
-          <label class="tog"><input type="checkbox" id="ch-sound" checked /> sound</label>
-          <label class="tog"><input type="checkbox" id="ch-motion" checked /> motion</label>
-        </div>
-        <div class="row">
-          <span style="color: var(--muted)">strength</span>
-          <input type="range" id="strength" min="0" max="1.5" step="0.05" value="1" />
-          <span id="strength-val" style="width: 2.5em; text-align: right">1.0</span>
-        </div>
+    <main class="page">
+      <div class="topbar">
+        <a
+          class="ghlink"
+          href="https://github.com/gomezsj12/dalin-tactile"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path
+              d="M12 .5C5.37.5 0 5.78 0 12.29c0 5.2 3.44 9.61 8.2 11.17.6.11.82-.25.82-.56 0-.28-.01-1.02-.02-2-3.34.71-4.04-1.58-4.04-1.58-.55-1.36-1.33-1.73-1.33-1.73-1.09-.73.08-.71.08-.71 1.2.08 1.84 1.21 1.84 1.21 1.07 1.79 2.8 1.27 3.49.97.11-.76.42-1.27.76-1.56-2.67-.3-5.47-1.3-5.47-5.79 0-1.28.47-2.32 1.23-3.14-.12-.3-.53-1.52.12-3.16 0 0 1-.31 3.3 1.2a11.6 11.6 0 0 1 6 0c2.28-1.51 3.29-1.2 3.29-1.2.65 1.64.24 2.86.12 3.16.77.82 1.23 1.86 1.23 3.14 0 4.5-2.81 5.48-5.49 5.77.43.36.81 1.08.81 2.18 0 1.58-.01 2.85-.01 3.24 0 .31.21.68.83.56A12.02 12.02 0 0 0 24 12.29C24 5.78 18.63.5 12 .5Z"
+            />
+          </svg>
+          GitHub
+        </a>
       </div>
 
-      <div class="panel">
-        <div class="grid">
-          <button data-ev="selection">selection</button>
-          <button data-ev="light">light</button>
-          <button data-ev="medium">medium</button>
-          <button data-ev="heavy">heavy</button>
-          <button data-ev="success" class="accent">success 🎉</button>
-          <button data-ev="warning">warning</button>
-          <button data-ev="error">error</button>
-          <button id="testall" class="span2">▶ test all (sequence)</button>
+      <section class="hero">
+        <div class="demo">
+          <h1 class="wm" aria-label="tactile">
+            <span class="wm__ch" aria-hidden="true">t</span><span class="wm__ch" aria-hidden="true">a</span><span class="wm__ch" aria-hidden="true">c</span><span class="wm__ch" aria-hidden="true">t</span><span class="wm__ch" aria-hidden="true">i</span><span class="wm__ch" aria-hidden="true">l</span><span class="wm__ch" aria-hidden="true">e</span>
+          </h1>
+          <p class="wm__sub">haptics · sound · motion</p>
+          <div class="events">
+            <button class="ev ev--selection" data-ev="selection">selection</button>
+            <button class="ev ev--light" data-ev="light">light</button>
+            <button class="ev ev--medium" data-ev="medium">medium</button>
+            <button class="ev ev--heavy" data-ev="heavy">heavy</button>
+            <button class="ev ev--success" data-ev="success">success</button>
+            <button class="ev ev--warning" data-ev="warning">warning</button>
+            <button class="ev ev--error" data-ev="error">error</button>
+            <button class="ev ev--buzz" data-ev="buzz">buzz</button>
+          </div>
         </div>
-        <p class="hint">Tip: haptics only fire on a phone. On desktop you'll see motion and (with sound on) hear the synth.</p>
-      </div>
+      </section>
 
-      <div class="panel">
-        <button id="diag" class="span2" style="width: 100%; margin-bottom: 12px">diagnose() — why isn't it firing?</button>
-        <pre id="out">tap a button…</pre>
-      </div>
+      <section class="section">
+        <h2 class="section__title">Install</h2>
+        <div class="tabs" id="install-tabs" role="tablist" aria-label="Package manager">
+          <button class="tab" data-pm="npm" data-active="true" role="tab">npm</button>
+          <button class="tab" data-pm="pnpm" data-active="false" role="tab">pnpm</button>
+          <button class="tab" data-pm="yarn" data-active="false" role="tab">yarn</button>
+          <button class="tab" data-pm="bun" data-active="false" role="tab">bun</button>
+        </div>
+        <div class="code code--install">
+          <button class="code__copy" data-copy="install" data-done="false" aria-label="Copy to clipboard">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="9" y="9" width="13" height="13" rx="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            Copy
+          </button>
+          <pre><span class="code__prompt">$</span><code id="install-code"></code></pre>
+        </div>
+        <p class="install-note">
+          Not on npm yet — installs from source, imports as <code>@dalin/tactile</code>. Zero deps ·
+          ESM + types.
+        </p>
+      </section>
+
+      <section class="section">
+        <h2 class="section__title">Usage</h2>
+        <div class="tabs" id="usage-tabs" role="tablist" aria-label="Framework">
+          <button class="tab" data-fw="TypeScript" data-active="true" role="tab">TypeScript</button>
+          <button class="tab" data-fw="React" data-active="false" role="tab">React</button>
+          <button class="tab" data-fw="Vue" data-active="false" role="tab">Vue</button>
+          <button class="tab" data-fw="Svelte" data-active="false" role="tab">Svelte</button>
+        </div>
+        <div class="code">
+          <button class="code__copy" data-copy="usage" data-done="false" aria-label="Copy to clipboard">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="9" y="9" width="13" height="13" rx="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            Copy
+          </button>
+          <pre><code id="usage-code"></code></pre>
+        </div>
+      </section>
+
+      <section class="section section--diag">
+        <h2 class="section__title">Diagnostics</h2>
+        <div class="diag-actions">
+          <button class="btn" id="testall">▶ Test all (sequence)</button>
+          <button class="btn" id="diag">diagnose() — why isn't it firing?</button>
+        </div>
+        <div class="code"><pre id="out">Tap an event above, or run diagnose().</pre></div>
+      </section>
+
+      <footer class="footer">
+        <div>
+          Crafted by
+          <a href="https://github.com/gomezsj12" target="_blank" rel="noreferrer">Samuel Gomez</a>
+        </div>
+        <div class="footer__meta">
+          v0.1.0 ·
+          <a href="https://github.com/gomezsj12/dalin-tactile" target="_blank" rel="noreferrer">GitHub</a>
+        </div>
+      </footer>
     </main>
 
     <script type="module">
@@ -118,51 +504,100 @@
       window.tactile = t; // exposed for quick console / preview debugging
       const $ = (id) => document.getElementById(id);
 
-      // Beacon telemetry back to the dev server so it can be read from the logs.
-      function beacon(type, extra) {
-        try {
-          fetch("/log", {
-            method: "POST",
-            headers: { "content-type": "application/json" },
-            body: JSON.stringify({ type, ...extra, ua: navigator.userAgent }),
-            keepalive: true,
-          });
-        } catch {}
-      }
-
-      function sync() {
-        $("strength-val").textContent = (+$("strength").value).toFixed(2);
-        t.set({
-          haptics: $("ch-haptics").checked,
-          sound: $("ch-sound").checked,
-          motion: $("ch-motion").checked,
-          strength: +$("strength").value,
-        });
-      }
-      ["ch-haptics", "ch-sound", "ch-motion", "strength"].forEach((id) =>
-        $(id).addEventListener("input", sync),
-      );
-
-      document.querySelectorAll("[data-ev]").forEach((btn) => {
+      // ── hero event grid (mirrors tactile.dalin.pro) ──────────────────────
+      document.querySelectorAll(".ev").forEach((btn) => {
         btn.addEventListener("click", (e) => {
-          sync();
-          const ev = btn.dataset.ev;
-          t[ev](e);
-          beacon("event", { event: ev, report: t.diagnose() });
+          const key = btn.dataset.ev;
+          btn.animate(
+            [{ transform: "scale(1)" }, { transform: "scale(1.07)" }, { transform: "scale(1)" }],
+            { duration: 260, easing: "cubic-bezier(0.34, 1.5, 0.5, 1)" },
+          );
+          const target = { el: btn, x: e.clientX, y: e.clientY };
+          t[key](target); // selection · light · medium · heavy · success · warning · error · buzz
         });
       });
-      $("testall").addEventListener("click", () => {
-        sync();
-        t.test();
-        beacon("test-all", { report: t.diagnose() });
+
+      // ── Install + Usage docs: tabbed snippets with copy ──────────────────
+      const INSTALL = {
+        npm: "npm install github:gomezsj12/dalin-tactile",
+        pnpm: "pnpm add github:gomezsj12/dalin-tactile",
+        yarn: "yarn add github:gomezsj12/dalin-tactile",
+        bun: "bun add github:gomezsj12/dalin-tactile",
+      };
+      const USAGE = {
+        TypeScript: `import { createTactile } from "@dalin/tactile";
+
+// All three channels — haptic + sound + motion — from one call.
+const t = createTactile({ haptics: true, sound: true, motion: true });
+
+button.addEventListener("click", (e) => t.success(e));
+// → taptic buzz + chime + an emoji burst at the tap 🎉`,
+        React: `import { useMemo } from "react";
+import { createTactile } from "@dalin/tactile";
+
+export function LikeButton() {
+  // Keep one instance for the component's lifetime.
+  const t = useMemo(() => createTactile({ sound: true, motion: true }), []);
+
+  // React hands you a SyntheticEvent — pass e.nativeEvent for the tap point.
+  return <button onClick={(e) => t.success(e.nativeEvent)}>Like</button>;
+}`,
+        Vue: `<script setup lang="ts">
+import { createTactile } from "@dalin/tactile";
+
+const t = createTactile({ sound: true, motion: true });
+<\/script>
+
+<template>
+  <button @click="(e) => t.success(e)">Like</button>
+</template>`,
+        Svelte: `<script lang="ts">
+  import { createTactile } from "@dalin/tactile";
+
+  const t = createTactile({ sound: true, motion: true });
+<\/script>
+
+<button on:click={(e) => t.success(e)}>Like</button>`,
+      };
+
+      const activeData = (id) => $(id).querySelector('.tab[data-active="true"]').dataset;
+      const renderInstall = () => ($("install-code").textContent = INSTALL[activeData("install-tabs").pm]);
+      const renderUsage = () => ($("usage-code").textContent = USAGE[activeData("usage-tabs").fw]);
+
+      function wireTabs(id, render) {
+        $(id).addEventListener("click", (e) => {
+          const tab = e.target.closest(".tab");
+          if (!tab) return;
+          $(id)
+            .querySelectorAll(".tab")
+            .forEach((b) => b.setAttribute("data-active", String(b === tab)));
+          render();
+        });
+      }
+      wireTabs("install-tabs", renderInstall);
+      wireTabs("usage-tabs", renderUsage);
+      renderInstall();
+      renderUsage();
+
+      document.querySelectorAll(".code__copy").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const text =
+            btn.dataset.copy === "install"
+              ? INSTALL[activeData("install-tabs").pm]
+              : USAGE[activeData("usage-tabs").fw];
+          try {
+            await navigator.clipboard.writeText(text);
+            btn.setAttribute("data-done", "true");
+            setTimeout(() => btn.setAttribute("data-done", "false"), 1200);
+          } catch {}
+        });
       });
+
+      // ── diagnostics ──────────────────────────────────────────────────────
+      $("testall").addEventListener("click", () => t.test());
       $("diag").addEventListener("click", () => {
-        const report = t.diagnose();
-        $("out").textContent = JSON.stringify(report, null, 2);
-        beacon("diagnose", { report });
+        $("out").textContent = JSON.stringify(t.diagnose(), null, 2);
       });
-      sync();
-      beacon("load", { report: t.diagnose() });
     </script>
   </body>
 </html>

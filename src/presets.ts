@@ -86,6 +86,20 @@ export const DEFAULT_EVENTS: EventTable = {
     sound: "error",
     motion: { kind: "particles", emojis: ["⛔️", "🚫", "💢"], count: 6 },
   },
+  buzz: {
+    // a rapid rattle — four quick pulses that build, like a little vibration burst
+    haptic: {
+      steps: [
+        { duration: 20, intensity: 0.6 },
+        { delay: 24, duration: 20, intensity: 0.7 },
+        { delay: 24, duration: 20, intensity: 0.8 },
+        { delay: 24, duration: 28, intensity: 0.95 },
+      ],
+      ios: "light",
+    },
+    sound: "tick",
+    motion: { kind: "particles", emojis: ["📳", "🐝", "💫", "✨"], count: 6, flip: true },
+  },
 };
 
 const EVENT_NAMES = Object.keys(DEFAULT_EVENTS) as EventName[];
