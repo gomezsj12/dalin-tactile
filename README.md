@@ -89,7 +89,8 @@ createTactile({
   volume: 0.8,     // global sound volume
   scale: 1.5,      // global motion scale (particle count, boop distance)
   events: {
-    // override just what you want — the rest keep their defaults
+    // override the channels you want; omitted channels keep their defaults.
+    // A supplied channel replaces that whole recipe, so include the full motion spec.
     success: { motion: { kind: "particles", emojis: ["🐝", "🍯", "🌼"], count: 10, duration: 800 } },
     heavy:   { haptic: { steps: [{ duration: 120 }, { delay: 60, duration: 200 }] } },
   },

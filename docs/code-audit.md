@@ -1,6 +1,6 @@
 # Code Audit — Findings Catalogue
 
-> Last updated: **2026-06-28** — fixed AUDIT-013 after the first comprehensive review
+> Last updated: **2026-06-28** — fixed AUDIT-014 after the first comprehensive review
 > of `@dalin/tactile`,
 > and the run that stood up this review system. Session log:
 > [`reviews/2026-06-27-initial-comprehensive-review.md`](./reviews/2026-06-27-initial-comprehensive-review.md).
@@ -34,8 +34,8 @@ in [Verified sound](#verified-sound-no-finding) so they aren't re-litigated).
 | Critical | 0 | 0 | 0 |
 | High | 3 | 0 | 3 |
 | Medium | 3 | 0 | 3 |
-| Low | 12 | 1 | 13 |
-| **Total** | **18** | **1** | **19** |
+| Low | 11 | 2 | 13 |
+| **Total** | **17** | **2** | **19** |
 
 | ID | Sev | Title |
 |----|-----|-------|
@@ -303,7 +303,7 @@ error.
 
 **Severity:** Low
 **Files:** `src/presets.ts` (`resolveEvents`, ~126–128), `README.md` (Tuning)
-**Status:** Open
+**Status:** Fixed (2026-06-28)
 
 `resolveEvents` merges overrides **per channel** (`haptic`/`sound`/`motion` are taken
 whole from the override or whole from the default), not field-by-field. The README's
@@ -313,6 +313,9 @@ overriding `events.success.motion` replaces the entire motion spec (you can't tw
 
 **Recommendation:** Clarify in the README Tuning section that a channel override replaces
 that channel's recipe wholesale (re-supply the full channel object). No code change needed.
+
+**Resolution:** README Tuning now says omitted channels keep defaults, while any supplied
+channel replaces that whole recipe and should include the full desired channel spec.
 
 ---
 

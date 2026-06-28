@@ -2,6 +2,12 @@
 
 What changed, when, and why. Most recent first.
 
+## 2026-06-28 (AUDIT-014 override docs clarification)
+
+- **AUDIT-014 fixed:** README Tuning now clarifies event override granularity: omitted
+  channels keep their defaults, but a supplied channel recipe replaces that entire
+  channel rather than deep-merging fields.
+
 ## 2026-06-28 (AUDIT-013 prefer-const cleanup)
 
 - **AUDIT-013 fixed:** `src/motion/particles.ts` now keeps the shared mutable particle
