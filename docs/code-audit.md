@@ -1,6 +1,6 @@
 # Code Audit — Findings Catalogue
 
-> Last updated: **2026-06-28** — fixed AUDIT-004 after the first comprehensive review
+> Last updated: **2026-06-28** — fixed AUDIT-011 after the first comprehensive review
 > of `@dalin/tactile`,
 > and the run that stood up this review system. Session log:
 > [`reviews/2026-06-27-initial-comprehensive-review.md`](./reviews/2026-06-27-initial-comprehensive-review.md).
@@ -34,8 +34,8 @@ in [Verified sound](#verified-sound-no-finding) so they aren't re-litigated).
 | Critical | 0 | 0 | 0 |
 | High | 3 | 0 | 3 |
 | Medium | 2 | 1 | 3 |
-| Low | 10 | 3 | 13 |
-| **Total** | **15** | **4** | **19** |
+| Low | 9 | 4 | 13 |
+| **Total** | **14** | **5** | **19** |
 
 | ID | Sev | Title |
 |----|-----|-------|
@@ -266,7 +266,7 @@ duration (or special-case the long ones) so each preset plays to completion.
 
 **Severity:** Low
 **Files:** `src/pattern.ts` (`stepsToPattern`, ~39–46)
-**Status:** Open
+**Status:** Fixed (2026-06-28)
 
 A long-duration, sub-full-`intensity` step expands to a large `[on, off, …]` array
 (on-time chopped into ~10 ms PWM windows). The built-in presets are safe (full-intensity
@@ -276,6 +276,10 @@ intensity 0.5 yields a ~500-element pattern, and some engines cap pattern length
 **Recommendation:** Cap the total expanded pattern length (or scale `PWM_PERIOD_MS` up
 for very long steps) and document that fractional intensity over long durations produces
 large patterns.
+
+**Resolution:** Long fractional-intensity steps now widen their PWM carrier once they
+would exceed 64 windows, keeping custom buzz-style steps bounded while preserving
+short-step behavior, total duration, on/off parity, and approximate duty cycle.
 
 ---
 

@@ -2,6 +2,14 @@
 
 What changed, when, and why. Most recent first.
 
+## 2026-06-28 (AUDIT-011 PWM expansion cap)
+
+- **AUDIT-011 fixed:** Long fractional-intensity haptic steps now widen their PWM
+  period once needed, keeping custom buzz-style vibration patterns bounded while
+  preserving approximate duration and duty cycle.
+- **Generated output rebuilt:** `dist/` refreshed from `src/` so GitHub installs stay in
+  sync.
+
 ## 2026-06-28 (AUDIT-004 iOS buzz caveat)
 
 - **AUDIT-004 fixed:** README and source comments now describe `buzz` accurately across

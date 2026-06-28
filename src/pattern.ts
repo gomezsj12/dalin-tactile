@@ -1,6 +1,7 @@
 import type { HapticStep } from "./types.js";
 
 const PWM_PERIOD_MS = 10;
+const MAX_PWM_WINDOWS_PER_STEP = 64;
 const clamp01 = (n: number): number => (n < 0 ? 0 : n > 1 ? 1 : n);
 
 /**
@@ -36,13 +37,12 @@ export function stepsToPattern(steps: HapticStep[], strength = 1): number[] {
       add(false, dur);
       continue;
     }
-    // AUDIT-011 (Low): for a long, low-intensity step this PWM loop emits ~dur/10 windows
-    // (×2 entries) — a custom 2500ms @ 0.5 step → ~500-element pattern, and some engines
-    // cap pattern length. Built-in presets are safe (full intensity collapses to one
-    // pulse). Consider a cap / larger PWM_PERIOD_MS for long steps. See docs/code-audit.md.
+    // Long fractional steps widen the PWM carrier so custom buzzes do not expand
+    // into huge `navigator.vibrate` arrays while keeping roughly the same duty cycle.
+    const pwmPeriod = Math.max(PWM_PERIOD_MS, Math.ceil(dur / MAX_PWM_WINDOWS_PER_STEP));
     let remaining = dur;
     while (remaining > 0.5) {
-      const w = Math.min(PWM_PERIOD_MS, remaining);
+      const w = Math.min(pwmPeriod, remaining);
       const on = Math.max(1, Math.round(w * intensity));
       add(true, on);
       add(false, Math.round(w - on));

@@ -14,6 +14,18 @@ describe("stepsToPattern", () => {
     expect(onMs).toBeLessThan(20); // duty < 100%
   });
 
+  it("bounds long fractional-intensity PWM expansion", () => {
+    const p = stepsToPattern([{ duration: 2500, intensity: 0.5 }]);
+    const totalMs = p.reduce((a, b) => a + b, 0);
+    const onMs = p.filter((_, i) => i % 2 === 0).reduce((a, b) => a + b, 0);
+
+    expect(p.length).toBeLessThanOrEqual(127);
+    expect(totalMs).toBeGreaterThanOrEqual(2450);
+    expect(totalMs).toBeLessThanOrEqual(2500);
+    expect(onMs).toBeGreaterThanOrEqual(1200);
+    expect(onMs).toBeLessThanOrEqual(1300);
+  });
+
   it("scales on-durations by strength", () => {
     expect(stepsToPattern([{ duration: 50, intensity: 1 }], 2)).toEqual([100]);
     expect(stepsToPattern([{ duration: 50, intensity: 1 }], 0.5)).toEqual([25]);
