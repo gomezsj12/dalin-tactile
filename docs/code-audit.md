@@ -1,6 +1,6 @@
 # Code Audit — Findings Catalogue
 
-> Last updated: **2026-06-28** — fixed AUDIT-009 after the first comprehensive review
+> Last updated: **2026-06-28** — fixed AUDIT-004 after the first comprehensive review
 > of `@dalin/tactile`,
 > and the run that stood up this review system. Session log:
 > [`reviews/2026-06-27-initial-comprehensive-review.md`](./reviews/2026-06-27-initial-comprehensive-review.md).
@@ -33,9 +33,9 @@ in [Verified sound](#verified-sound-no-finding) so they aren't re-litigated).
 |----------|------|-------|-------|
 | Critical | 0 | 0 | 0 |
 | High | 3 | 0 | 3 |
-| Medium | 3 | 0 | 3 |
+| Medium | 2 | 1 | 3 |
 | Low | 10 | 3 | 13 |
-| **Total** | **16** | **3** | **19** |
+| **Total** | **15** | **4** | **19** |
 
 | ID | Sev | Title |
 |----|-----|-------|
@@ -133,7 +133,7 @@ any pending particle-shower timers. Document calling it on unmount. Tracked in
 
 **Severity:** Medium
 **Files:** `src/backends/web.ts` (~15–19), `src/presets.ts` (`buzz`), `README.md`
-**Status:** Open
+**Status:** Fixed (2026-06-28)
 
 The `buzz` preset and README market a "continuous ~2.5 s buzz" across all channels, but
 on iOS `web.fire()` calls `iosTick()` once and returns, ignoring the 2500 ms haptic
@@ -145,6 +145,11 @@ The claim is accurate on Android, false on iOS.
 sound + motion carry the duration"), and/or — if a sustained iOS feel is wanted — repeat
 `iosTick()` on an interval across the recipe duration to approximate a rattle. Keep
 `diagnose()`'s honesty. See [`error-log.md`](./error-log.md) ERR-004.
+
+**Resolution:** README and preset comments now describe `buzz` per platform: Android
+receives the long `navigator.vibrate` step, while iOS maps the haptic channel to one
+Taptic tick and relies on sound + motion for the multi-second duration. The web backend
+comment now documents that caveat without changing runtime behavior.
 
 ---
 

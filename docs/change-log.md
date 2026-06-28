@@ -2,6 +2,12 @@
 
 What changed, when, and why. Most recent first.
 
+## 2026-06-28 (AUDIT-004 iOS buzz caveat)
+
+- **AUDIT-004 fixed:** README and source comments now describe `buzz` accurately across
+  platforms: Android can run the long vibration step, while iOS haptics are one Taptic
+  tick and sound + motion carry the multi-second duration. Runtime behavior is unchanged.
+
 ## 2026-06-28 (AUDIT-009 backend docs alignment)
 
 - **AUDIT-009 fixed:** `TactileConfig.backend` JSDoc and the backend-selection source

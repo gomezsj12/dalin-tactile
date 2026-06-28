@@ -10,10 +10,8 @@ export function createWebBackend() {
         kind: "web",
         fire(recipe, strength) {
             if (platform.ios) {
-                // AUDIT-004 (Medium): one tick regardless of recipe.steps — so `buzz` (a 2500ms
-                // step) is a single tick on iOS, not the "continuous vibration" the README/preset
-                // advertise. Sound + motion carry the duration on iOS. Document per-platform, or
-                // repeat iosTick() across the duration to approximate sustain. See docs/code-audit.md.
+                // iOS has no Vibration API: every recipe, including sustained `buzz`,
+                // maps to one discrete Taptic tick. Sound + motion carry longer durations.
                 iosTick(); // iOS has no Vibration API — one Taptic tick via the switch
                 return;
             }

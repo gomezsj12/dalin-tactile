@@ -87,9 +87,9 @@ export const DEFAULT_EVENTS: EventTable = {
     motion: { kind: "particles", emojis: ["⛔️", "🚫", "💢"], count: 6 },
   },
   buzz: {
-    // a continuous, several-seconds buzz — all three channels run for the duration
+    // Sustained on Android haptics, sound, and motion. iOS haptics remain one tick.
     haptic: {
-      steps: [{ duration: 2500, intensity: 1 }], // one long, steady vibration
+      steps: [{ duration: 2500, intensity: 1 }], // Android: one long, steady vibration
       ios: "light",
     },
     sound: "buzz", // sustained buzzing tone (~2.5s), see the synth pack

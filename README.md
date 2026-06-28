@@ -47,7 +47,7 @@ const t = createTactile({ haptics: true, sound: true, motion: true });
 t.selection();            // a light tick + soft click
 t.impact("heavy", el);    // strong double‑thud + boom + a springy "boop" on `el`
 t.success(clickEvent);    // success buzz + chime + an emoji shower at the tap point
-t.buzz();                 // a continuous ~2.5s buzz — vibration + sound + emoji shower
+t.buzz();                 // ~2.5s sound + emoji shower; Android vibrates, iOS ticks once
 
 // One channel only? Drop-in replacement for a plain haptics helper:
 const haptics = createTactile();            // haptics only
@@ -61,7 +61,7 @@ The semantic methods are Capacitor / iOS `UIFeedbackGenerator`‑shaped:
 | `selection()` | a value snapping to a new state |
 | `impact("light" \| "medium" \| "heavy")` · `light()` / `medium()` / `heavy()` | a tap → a firm press → a heavy thud |
 | `notification("success" \| "warning" \| "error")` · `success()` / `warning()` / `error()` | confirmation / caution / rejection |
-| `buzz()` | a continuous multi-second buzz — sustained vibration, sound, and emoji shower |
+| `buzz()` | a multi-second buzz — sustained Android vibration, sound, and emoji shower; iOS haptics are one tick |
 | `play(nameOrSteps, target?)` | a preset, a raw duration in ms, or a custom step sequence |
 
 Any method optionally takes a **target** (an `Element`, a `MouseEvent`, or `{ x, y }`) so the motion channel knows where to anchor.
@@ -70,7 +70,7 @@ Any method optionally takes a **target** (an `Element`, a `MouseEvent`, or `{ x,
 
 Each channel is **opt‑in and lazily loaded** — a haptics‑only build never bundles the sound or motion code.
 
-- **haptic** — Android `navigator.vibrate` + the iOS `<input switch>` tick. Strength comes from duration + PWM duty (there's no web amplitude).
+- **haptic** — Android `navigator.vibrate` + the iOS `<input switch>` tick. Strength comes from duration + PWM duty (there's no web amplitude). iOS ignores haptic duration, so sustained presets like `buzz()` still produce one Taptic tick there.
 - **sound** — Web Audio. A built‑in zero‑asset **synth pack** by default, or your own sample pack.
 - **motion** — a dependency‑free canvas **emoji‑particle** engine + a springy **boop**. Respects `prefers-reduced-motion`.
 
@@ -150,7 +150,7 @@ The motion channel is automatically suppressed when the user has `prefers-reduce
 ## Platform notes
 
 - **Android** — `navigator.vibrate` works in Chrome/Firefox, but only if the OS "Touch feedback / vibration" setting and battery saver allow it.
-- **iOS Safari** — uses the `<input switch>` Taptic trick (one light tick per call). Apple patched the script‑driven path in **iOS 26.5**; this is a platform limitation, not a bug.
+- **iOS Safari** — uses the `<input switch>` Taptic trick (one light tick per call), so `buzz()` gets one haptic tick while sound + motion carry the multi-second duration. Apple patched the script‑driven path in **iOS 26.5**; this is a platform limitation, not a bug.
 - **Desktop** — no vibration motor; sound + motion carry the feedback.
 - A native (Capacitor) backend behind the same API is on the roadmap, for apps that ship a native shell and want guaranteed haptics.
 
