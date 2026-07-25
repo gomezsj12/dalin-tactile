@@ -6,7 +6,7 @@
 //
 // Tier note: this uses the NON-type-checked `recommended` preset to stay fast
 // and low-noise. A stricter type-aware tier (`recommendedTypeChecked` +
-// `no-non-null-assertion`) is a documented upgrade — see docs/TOOLING.md.
+// `no-non-null-assertion`) is a documented upgrade; see docs/TOOLING.md.
 import js from "@eslint/js";
 import tseslint from "typescript-eslint";
 import prettier from "eslint-config-prettier";
@@ -25,7 +25,7 @@ export default tseslint.config(
     },
     rules: {
       // The library deliberately swallows best-effort failures (vibrate, audio,
-      // DOM injection) — empty catch blocks are intentional, so allow them.
+      // DOM injection): empty catch blocks are intentional, so allow them.
       "no-empty": ["error", { allowEmptyCatch: true }],
       // Unused vars are an error, but allow leading-underscore opt-outs.
       "@typescript-eslint/no-unused-vars": [

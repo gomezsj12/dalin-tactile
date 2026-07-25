@@ -1,11 +1,11 @@
 import type { EventName, EventOverrides, EventRecipe, EventTable } from "./types.js";
 
 /**
- * Default event recipes — each maps a semantic event onto up to three channels.
+ * Default event recipes. Each maps a semantic event onto up to three channels.
  * Override any field via `createTactile({ events: {...} })`.
  *
  *   haptic → vibrate pattern. Strength is a blend of PWM `intensity` (0..1, the
- *            duty cycle — perceptible on devices that honour it) AND `duration`.
+ *            duty cycle, perceptible on devices that honour it) AND `duration`.
  *            The spread is deliberately EXTREME so the steps feel very different:
  *            a 10ms / 0.18 whisper for selection up to a 100+180ms / 1.0
  *            double-thud for heavy. `strength` scales it globally.
@@ -166,7 +166,7 @@ function cloneRecipe(r: EventRecipe): EventRecipe {
 /**
  * Merge overrides onto the defaults, producing a fresh, fully-populated table.
  *
- * AUDIT-014 (Low): merge is PER CHANNEL, not per field — an override's `haptic`/`sound`/
+ * AUDIT-014 (Low): merge is PER CHANNEL, not per field: an override's `haptic`/`sound`/
  * `motion` replaces the whole channel recipe (you can't tweak just `motion.count`). The
  * README's "override just what you want" reads field-level; clarify the wording. code-audit.md.
  */

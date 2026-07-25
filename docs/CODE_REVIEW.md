@@ -1,4 +1,4 @@
-# Code Review — Process, Checklists & Anti-Patterns
+# Code Review: Process, Checklists & Anti-Patterns
 
 This document defines the code-review process for **@dalin/tactile**. It is written
 for AI agents (Claude Code, Cursor Composer, GPT-based agents) and human reviewers alike.
@@ -13,7 +13,7 @@ framework, and a `tsc`-only build. Backend/DB/PWA/auth checklists do not apply h
 and packaging** do.
 
 **Session records** are stored as individual files in [`reviews/`](./reviews/) with
-timestamped filenames — they are **not** appended to this file. See
+timestamped filenames. They are **not** appended to this file. See
 [`docs/README.md`](./README.md) for the naming convention.
 
 ---
@@ -62,19 +62,19 @@ documentation-only, stop after Phase 2.
 - [ ] `docs/change-log.md` reflects all commits in `git log`
 - [ ] `docs/ARCHITECTURE.md` matches the current file map, entry points, channel model, and lifecycle
 - [ ] `docs/error-log.md` includes recently fixed bugs (esp. the audio-unlock and iOS-tick lessons)
-- [ ] `docs/code-audit.md` — new findings since last review? Any "Open" findings now fixed?
+- [ ] `docs/code-audit.md`: new findings since last review? Any "Open" findings now fixed?
 - [ ] `README.md` claims match the code (channel defaults, the `events` override semantics, the platform notes)
 - [ ] `AGENTS.md` / `CLAUDE.md` read-order, key-files table, and rules still accurate
 
 ### Phase 2: Code comments audit
 - [ ] Every exported function/type/interface has a doc comment; every source file has a file-level comment
-- [ ] Inline comments explain the non-obvious mechanics (PWM duty cycle, the iOS gesture/audio-unlock invariant, the self-stopping rAF loop, the parity rule in `stepsToPattern`) — not self-evident code
+- [ ] Inline comments explain the non-obvious mechanics (PWM duty cycle, the iOS gesture/audio-unlock invariant, the self-stopping rAF loop, the parity rule in `stepsToPattern`), not self-evident code
 - [ ] Comments match current behavior (no stale comments after a recipe/preset change)
-- [ ] The cautionary comments are intact (the "resume on ANY gesture (NOT once)" and "create context SYNCHRONOUSLY in the gesture" notes in `src/index.ts` are load-bearing — never delete them)
+- [ ] The cautionary comments are intact (the "resume on ANY gesture (NOT once)" and "create context SYNCHRONOUSLY in the gesture" notes in `src/index.ts` are load-bearing, so never delete them)
 
 ### Phase 3: Correctness & lifecycle (the `createTactile` state machine)
-This is the highest-bug-density area — closures, async channel loads, and global resources.
-- [ ] **Channel enable/disable races:** the async closures in `enableSound`/`enableMotion` that resolve a dynamic `import()` must re-check that the requested spec is still current before assigning `sound`/`motion` — a fast toggle issued mid-load must not be clobbered by a stale in-flight enable
+This is the highest-bug-density area: closures, async channel loads, and global resources.
+- [ ] **Channel enable/disable races:** the async closures in `enableSound`/`enableMotion` that resolve a dynamic `import()` must re-check that the requested spec is still current before assigning `sound`/`motion`, because a fast toggle issued mid-load must not be clobbered by a stale in-flight enable
 - [ ] **`set({events})` accumulation:** confirm successive `set({events})` calls compose as the caller expects (watch for re-merging from the original constructor config and dropping a prior `set`)
 - [ ] **Idempotent re-enable:** `enableSound(true)`/`enableMotion(true)` twice must not tear down and rebuild a loaded channel
 - [ ] **Resource teardown:** the instance attaches capturing global listeners and may open an `AudioContext`. Is there a teardown path? Track the cost under React StrictMode / HMR / SPA churn (listener + `AudioContext` accumulation)
@@ -84,8 +84,8 @@ This is the highest-bug-density area — closures, async channel loads, and glob
 ### Phase 4: Channels deep-dive
 **Haptic / `pattern.ts`:**
 - [ ] `stepsToPattern` parity holds (pattern starts on an on-value; leading delay → `0`-length on-pulse); trailing silence dropped; the unit tests still pin the contract
-- [ ] PWM expansion is bounded — a long, low-`intensity` step doesn't explode the pattern array
-- [ ] iOS path fires a single tick and ignores step durations (correct — document, don't "fix")
+- [ ] PWM expansion is bounded, so a long, low-`intensity` step doesn't explode the pattern array
+- [ ] iOS path fires a single tick and ignores step durations (correct, so document it, don't "fix" it)
 
 **Sound / Web Audio:**
 - [ ] The `AudioContext` is created lazily, resumed in-gesture and on every gesture (ERR-001/002 invariants)
@@ -102,7 +102,7 @@ This is the highest-bug-density area — closures, async channel loads, and glob
 ### Phase 5: Performance (mobile-first)
 - [ ] No avoidable per-fire allocation/work in the hot path (`fire`, `detectPlatform` caching)
 - [ ] Particle engine stays smooth on a low-end phone at realistic burst rates (rapid taps, sustained `success`/`buzz` showers)
-- [ ] Web Audio node creation per cue is acceptable (no pool needed at UI-cue rates) — confirm, don't assume
+- [ ] Web Audio node creation per cue is acceptable (no pool needed at UI-cue rates). Confirm, don't assume
 - [ ] Bundle size within budget (`npm run size`); lazy channels actually code-split
 
 ### Phase 6: API surface & type safety
@@ -116,7 +116,7 @@ This is the highest-bug-density area — closures, async channel loads, and glob
 - [ ] Every browser global is `typeof`-guarded; `createTactile()` is safe to construct with no DOM
 - [ ] Injected DOM (`ios-switch` label, particle canvas) is `aria-hidden`, `pointer-events:none`, and non-interfering
 - [ ] Reduced-motion respected by default
-- [ ] **Security surface is small but real:** `createSamplePack` fetches developer-supplied URLs (not user input — fine, but note any path that could take untrusted input); `demo/server.mjs` guards path traversal (`startsWith(ROOT)`). No `eval`, no `innerHTML`, no secrets.
+- [ ] **Security surface is small but real:** `createSamplePack` fetches developer-supplied URLs (not user input, which is fine, but note any path that could take untrusted input); `demo/server.mjs` guards path traversal (`startsWith(ROOT)`). No `eval`, no `innerHTML`, no secrets.
 
 ### Phase 8: Build, packaging & tooling
 - [ ] `npm run build` is clean (typecheck + emit); `dist/` is committed and **in sync with `src/`**
@@ -139,7 +139,7 @@ Patterns that have caused (or will cause) issues here or in sibling haptics code
 
 ### 2. Audio-context work moved behind an `await`
 **Pattern:** creating/resuming the `AudioContext` after the dynamic `import()` resolves.
-**Why:** iOS only unlocks audio synchronously inside the gesture — this is exactly ERR-001 (iOS silent).
+**Why:** iOS only unlocks audio synchronously inside the gesture. This is exactly ERR-001 (iOS silent).
 **Where:** `src/index.ts` `enableSound`.
 **Fix:** create + resume the context synchronously in the enabling gesture; await only the pack `create()`.
 
@@ -151,13 +151,13 @@ Patterns that have caused (or will cause) issues here or in sibling haptics code
 
 ### 4. Stale async channel enable clobbering a newer toggle
 **Pattern:** the `import()`-then-assign closure in `enableSound`/`enableMotion` assigns `sound`/`motion` without re-checking that `soundSpec`/`motionSpec` is still the value it was loading for.
-**Why:** a `set({sound:false})` (or a switch to a different pack) issued before the import resolves gets overwritten — the channel re-enables itself after the caller turned it off.
+**Why:** a `set({sound:false})` (or a switch to a different pack) issued before the import resolves gets overwritten. The channel re-enables itself after the caller turned it off.
 **Where:** `src/index.ts` `enableSound`/`enableMotion` async closures.
 **Fix:** capture the requested spec and bail in the closure if `spec !== current` before assigning.
 
 ### 5. Statically importing a lazy channel into the core
 **Pattern:** `import { synthPack } from "./sound/..."` (or the motion driver) at the top of `index.ts`.
-**Why:** defeats the dynamic-`import()` code-splitting — a haptics-only consumer now bundles sound/motion.
+**Why:** defeats the dynamic-`import()` code-splitting, so a haptics-only consumer now bundles sound/motion.
 **Where:** `src/index.ts`.
 **Fix:** keep sound/motion behind `await import(...)`; only `import type` is allowed statically.
 
@@ -181,7 +181,7 @@ Patterns that have caused (or will cause) issues here or in sibling haptics code
 
 ### 9. O(n²) work in the particle frame
 **Pattern:** pairwise collision (or any per-pair) work scaling with the particle count, with a high `MAX_ACTIVE`.
-**Why:** at the 500-particle cap that's ~125k checks/frame — a jank source on low-end mobile during sustained showers.
+**Why:** at the 500-particle cap that's ~125k checks/frame, a jank source on low-end mobile during sustained showers.
 **Where:** `src/motion/particles.ts` `resolveCollisions`.
 **Fix:** spatial hashing / a lower active cap / skip collisions past a threshold; measure before/after.
 
@@ -199,7 +199,7 @@ Patterns that have caused (or will cause) issues here or in sibling haptics code
 
 ### 12. Overstating a platform capability
 **Pattern:** describing `buzz` as a "continuous multi-second vibration" without the iOS caveat (iOS fires one tick per call regardless of duration).
-**Why:** the haptic claim is false on iOS — sound + motion carry the sustained feel there.
+**Why:** the haptic claim is false on iOS, where sound + motion carry the sustained feel there.
 **Where:** `README.md`, `presets.ts` comments, `diagnose()` notes.
 **Fix:** keep platform claims honest and per-platform; let `diagnose()` tell the truth.
 
@@ -211,7 +211,7 @@ Patterns that have caused (or will cause) issues here or in sibling haptics code
 
 ### 14. Reformatting or hand-editing generated/hand-formatted files
 **Pattern:** running `prettier --write` across `src/` inside an unrelated change, or hand-editing `dist/`.
-**Why:** the source is hand-formatted (not Prettier-clean) — a bulk reformat buries the real change; `dist/` is generated.
+**Why:** the source is hand-formatted (not Prettier-clean), so a bulk reformat buries the real change; `dist/` is generated.
 **Where:** all of `src/`, all of `dist/`.
 **Fix:** keep edits minimal; reformat only in a dedicated, owner-approved commit; never edit `dist/` (rebuild from `src/`).
 
@@ -227,32 +227,32 @@ Patterns that have caused (or will cause) issues here or in sibling haptics code
 
 ### For Claude Code agents
 - Full Read/Write/Edit/Bash access. After any code change: `npm run build && npm test && npm run lint && npm run size`, then rebuild + stage `dist/`.
-- Read `AGENTS.md` before modifying any `src/` file — it carries the SSR, audio-unlock, lazy-channel, and committed-`dist/` rules this checklist enforces.
-- The **fallow** MCP (paste-in snippet in [`TOOLING.md`](./TOOLING.md)) is the fast path for dead-code/complexity/duplication — the particle engine is the complexity hotspot.
+- Read `AGENTS.md` before modifying any `src/` file. It carries the SSR, audio-unlock, lazy-channel, and committed-`dist/` rules this checklist enforces.
+- The **fallow** MCP (paste-in snippet in [`TOOLING.md`](./TOOLING.md)) is the fast path for dead-code/complexity/duplication. The particle engine is the complexity hotspot.
 - New review session log: `docs/reviews/YYYY-MM-DD-<short-description>.md`.
-- Multi-line commit messages: match the heredoc to the shell tool (Bash heredoc in the Bash tool, PS here-string in the PowerShell tool) — see `AGENTS.md` "Git push hygiene".
+- Multi-line commit messages: match the heredoc to the shell tool (Bash heredoc in the Bash tool, PS here-string in the PowerShell tool). See `AGENTS.md` "Git push hygiene".
 
 ### For Cursor Composer / GPT-based agents
-- **Do not** treat this like a Next.js/React/Node-backend project — it's a `tsc`-built, zero-dependency **browser library**. Don't suggest a framework, a server, a bundler, or a state manager.
-- **Don't statically import the sound/motion chunks into `index.ts`** — the core lazy-loads them via dynamic `import()`. A top-level import silently bloats every consumer.
-- **Every browser global needs a `typeof` guard** — the library is SSR-safe and runs at module scope in server frameworks.
-- **Don't bulk-reformat** `src/` — it's hand-formatted and not Prettier-clean; a reformat buries your change. (Prettier adoption is a separate, owner-approved commit.)
-- Check [`code-audit.md`](./code-audit.md) before "fixing" something — it may be an intentional design choice (PWM patterns, the iOS single-tick, `master.gain` headroom, committed `dist/`).
+- **Do not** treat this like a Next.js/React/Node-backend project. It's a `tsc`-built, zero-dependency **browser library**. Don't suggest a framework, a server, a bundler, or a state manager.
+- **Don't statically import the sound/motion chunks into `index.ts`.** The core lazy-loads them via dynamic `import()`. A top-level import silently bloats every consumer.
+- **Every browser global needs a `typeof` guard.** The library is SSR-safe and runs at module scope in server frameworks.
+- **Don't bulk-reformat** `src/`. It's hand-formatted and not Prettier-clean; a reformat buries your change. (Prettier adoption is a separate, owner-approved commit.)
+- Check [`code-audit.md`](./code-audit.md) before "fixing" something. It may be an intentional design choice (PWM patterns, the iOS single-tick, `master.gain` headroom, committed `dist/`).
 
 ### For GitHub Copilot / autocomplete
-- Zero dependencies — completions importing `howler`/`canvas-confetti`/`framer-motion` are wrong here.
-- A suggestion touching `window`/`document`/`navigator` without a guard breaks SSR — the human must add the guard.
-- `dist/` is generated — never hand-edit it; the human owns rebuilding `dist/` and updating `docs/`.
+- Zero dependencies, so completions importing `howler`/`canvas-confetti`/`framer-motion` are wrong here.
+- A suggestion touching `window`/`document`/`navigator` without a guard breaks SSR, and the human must add the guard.
+- `dist/` is generated, so never hand-edit it; the human owns rebuilding `dist/` and updating `docs/`.
 
 ### For any agent performing a code review
 1. **Read first:** `AGENTS.md` → `ARCHITECTURE.md` → `code-audit.md` → this file.
-2. **Don't change library logic during a review** unless asked — output is findings + a session log.
+2. **Don't change library logic during a review** unless asked. The output is findings + a session log.
 3. **If you do change code:** one change at a time, `build` + `test` after each, rebuild `dist/`, documented.
 4. **Severity levels:**
-   - **Critical** — security vulnerability, data corruption/loss, or crash. Must fix before release.
-   - **High** — broken feature, logic bug, or significant performance issue.
-   - **Medium** — code quality, maintainability, or minor performance. Fix when touching that file.
-   - **Low** — style, polish, best practice. Nice to have.
+   - **Critical.** Security vulnerability, data corruption/loss, or crash. Must fix before release.
+   - **High.** Broken feature, logic bug, or significant performance issue.
+   - **Medium.** Code quality, maintainability, or minor performance. Fix when touching that file.
+   - **Low.** Style, polish, best practice. Nice to have.
 
 ---
 
@@ -268,7 +268,7 @@ Stored as individual markdown files in [`reviews/`](./reviews/).
 - Scope (what was reviewed)
 - Work done this run
 - Findings summary (counts by severity + IDs)
-- Changes made (if any — file + action)
+- Changes made (if any: file + action)
 - Verification results (build, test, lint, size)
 - Deferred items
 - Notes for future reviewers

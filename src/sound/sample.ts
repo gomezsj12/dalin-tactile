@@ -1,11 +1,11 @@
 import type { SoundChannel, SoundPack } from "../types.js";
 
 /**
- * A sample-based sound pack — plays real audio files (e.g. curated CC0 sounds).
+ * A sample-based sound pack that plays real audio files (e.g. curated CC0 sounds).
  *
  * This is the "realness" upgrade over the synth pack. Supply a manifest mapping
  * cue names to file URLs; the pack fetches + decodes them once, then plays them
- * on demand. Files are NOT bundled — you point at a folder you control (drop in
+ * on demand. Files are NOT bundled: you point at a folder you control (drop in
  * CC0 samples from freesound.org or Kenney.nl), keeping the package asset-free.
  *
  *   createTactile({
@@ -33,7 +33,7 @@ export function createSamplePack(manifest: SampleManifest): SoundPack {
       const master = ctx.createGain();
       master.connect(ctx.destination);
 
-      // Small UI sounds — decode them all up front. A missing/failed file just
+      // Small UI sounds, so decode them all up front. A missing/failed file just
       // leaves that cue silent rather than throwing.
       await Promise.all(
         Object.entries(manifest.cues).map(async ([cue, file]) => {

@@ -16,7 +16,7 @@ export function createWebBackend(): HapticBackend {
       if (platform.ios) {
         // iOS has no Vibration API: every recipe, including sustained `buzz`,
         // maps to one discrete Taptic tick. Sound + motion carry longer durations.
-        iosTick(); // iOS has no Vibration API — one Taptic tick via the switch
+        iosTick(); // iOS has no Vibration API, so one Taptic tick via the switch
         return;
       }
       if (!canVibrate) return;

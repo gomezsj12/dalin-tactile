@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>@dalin/tactile — local demo</title>
+    <title>@dalin/tactile local demo</title>
     <meta
       name="description"
-      content="Local demo for @dalin/tactile — haptics, sound & motion, plus on-device diagnostics."
+      content="Local demo for @dalin/tactile: haptics, sound &amp; motion, plus on-device diagnostics."
     />
     <meta name="theme-color" content="#1a1a1a" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -413,7 +413,7 @@
           max-width: none;
         }
         .ev { font-size: 21px; }
-        /* Install/Usage are reference docs — hidden on phones, as on the public site… */
+        /* Install/Usage are reference docs, hidden on phones, as on the public site… */
         .section { display: none; }
         /* …but Diagnostics is the on-device essential, so keep it. */
         .section--diag { display: block; }
@@ -502,7 +502,7 @@
           <pre><span class="code__prompt">$</span><code id="install-code"></code></pre>
         </div>
         <p class="install-note">
-          Not on npm yet — installs from source, imports as <code>@dalin/tactile</code>. Zero deps ·
+          Not on npm yet. Installs from source, imports as <code>@dalin/tactile</code>. Zero deps ·
           ESM + types.
         </p>
       </section>
@@ -531,7 +531,7 @@
         <h2 class="section__title">Diagnostics</h2>
         <div class="diag-actions">
           <button class="btn" id="testall">▶ Test all (sequence)</button>
-          <button class="btn" id="diag">diagnose() — why isn't it firing?</button>
+          <button class="btn" id="diag">diagnose(): why isn't it firing?</button>
         </div>
         <div class="code"><pre id="out">Tap an event above, or run diagnose().</pre></div>
       </section>
@@ -553,7 +553,7 @@
       import { domMotionDriver } from "../dist/motion/index.js";
       import { SYNTH_CUES } from "../dist/sound/index.js";
 
-      // Always render motion, even with the OS "reduce motion" setting on — the
+      // Always render motion, even with the OS "reduce motion" setting on. The
       // whole point of the demo is to feel the feedback (mirrors the public site).
       const alwaysMotion = {
         name: "dom-always",
@@ -611,7 +611,7 @@
       const USAGE = {
         TypeScript: `import { createTactile } from "@dalin/tactile";
 
-// All three channels — haptic + sound + motion — from one call.
+// All three channels (haptic + sound + motion) from one call.
 const t = createTactile({ haptics: true, sound: true, motion: true });
 
 button.addEventListener("click", (e) => t.success(e));
@@ -623,7 +623,7 @@ export function LikeButton() {
   // Keep one instance for the component's lifetime.
   const t = useMemo(() => createTactile({ sound: true, motion: true }), []);
 
-  // React hands you a SyntheticEvent — pass e.nativeEvent for the tap point.
+  // React hands you a SyntheticEvent, so pass e.nativeEvent for the tap point.
   return <button onClick={(e) => t.success(e.nativeEvent)}>Like</button>;
 }`,
         Vue: `<script setup lang="ts">

@@ -1,7 +1,7 @@
 {
   "name": "@dalin/tactile",
   "version": "0.1.0",
-  "description": "Make web interactions feel real. One call fires coordinated haptics, sound, and motion — each independently tunable and toggleable. Pure-web today; swappable to a native haptic backend later.",
+  "description": "Make web interactions feel real. One call fires coordinated haptics, sound, and motion, each independently tunable and toggleable. Pure-web today; swappable to a native haptic backend later.",
   "type": "module",
   "license": "MIT",
   "author": "Samuel Gomez",

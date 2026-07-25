@@ -3,7 +3,7 @@
 // The library's whole pitch is "zero deps, tiny, lazily-loaded channels", so a
 // size regression is a real defect. This measures the gzipped size of each
 // published entry point (and its lazily-loaded chunks) and fails if any exceeds
-// its budget. Pure Node, no dependencies — mirrors the package's own ethos.
+// its budget. Pure Node, no dependencies, mirroring the package's own ethos.
 //
 // Budgets are deliberately generous headroom over today's sizes; tighten as the
 // surface stabilizes. Run with `npm run size` (build first).

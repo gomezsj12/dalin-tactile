@@ -3,8 +3,8 @@ import { particleBurst } from "./particles.js";
 
 /**
  * Built-in, dependency-free motion driver.
- *   • boop      — springy transform pulse on an element (Web Animations API)
- *   • particles — canvas emoji burst (see particles.ts, adapted from lochie MIT)
+ *   • boop:      a springy transform pulse on an element (Web Animations API)
+ *   • particles: a canvas emoji burst (see particles.ts, adapted from lochie MIT)
  * Heavier effect libs can be supplied as an alternative MotionDriver.
  */
 

@@ -5,10 +5,10 @@ description: Run the @dalin/tactile code-review process and log findings
 Perform a code review of @dalin/tactile following the project's documented process.
 
 **Read first (in order):**
-1. `AGENTS.md` — agent rules, critical warnings, conventions
-2. `docs/CODE_REVIEW.md` — the phased process + anti-patterns for this library
-3. `docs/code-audit.md` — existing findings (don't re-file what's catalogued)
-4. `docs/ARCHITECTURE.md` — how the channels/backends/swap-seam fit together
+1. `AGENTS.md`: agent rules, critical warnings, conventions
+2. `docs/CODE_REVIEW.md`: the phased process + anti-patterns for this library
+3. `docs/code-audit.md`: existing findings (don't re-file what's catalogued)
+4. `docs/ARCHITECTURE.md`: how the channels/backends/swap-seam fit together
 
 **Then:**
 - Work through the phases in `docs/CODE_REVIEW.md` (documentation → comments → correctness/lifecycle → channels → performance → API/types → SSR/robustness → build/tooling). Don't skip phases.

@@ -2,7 +2,7 @@ name: CI
 
 # Gate every push / PR on the same checks an agent runs locally:
 # typecheck + build, unit tests, lint, a bundle-size budget, and a dist/ drift
-# guard. (Roadmap item "CI" — stood up by the 2026-06-27 review.)
+# guard. (Roadmap item "CI", stood up by the 2026-06-27 review.)
 
 on:
   push:
@@ -26,10 +26,10 @@ jobs:
         run: npm run build
 
       # dist/ is the committed build output that GitHub installs pull, so a stale
-      # dist/ is a shipped bug. The build above just regenerated it — fail if that
+      # dist/ is a shipped bug. The build above just regenerated it, so fail if that
       # changed anything vs what's committed.
       - name: dist/ is in sync with src/
-        run: git diff --exit-code -- dist || (echo "::error::dist/ is stale — run 'npm run build' and commit dist/." && exit 1)
+        run: git diff --exit-code -- dist || (echo "::error::dist/ is stale. Run 'npm run build' and commit dist/." && exit 1)
 
       - name: Unit tests
         run: npm test

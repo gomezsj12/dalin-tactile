@@ -1,11 +1,11 @@
 /**
- * @dalin/tactile — make web interactions feel real.
+ * @dalin/tactile: make web interactions feel real.
  *
  * One semantic event (success, selection, press, …) fires up to THREE
  * independent channels in concert:
- *   • haptic — vibration / iOS Taptic (tunable PWM)
- *   • sound  — Web Audio (built-in synth pack, or a CC0 sample pack)
- *   • motion — on-screen feedback (emoji/particle burst, springy "boop")
+ *   • haptic: vibration / iOS Taptic (tunable PWM)
+ *   • sound:  Web Audio (built-in synth pack, or a CC0 sample pack)
+ *   • motion: on-screen feedback (emoji/particle burst, springy "boop")
  *
  * Every channel is independently on/off and tunable: haptics only, sound only,
  * the works. Motion auto-respects `prefers-reduced-motion`.
@@ -38,7 +38,7 @@ export interface HapticStep {
   duration?: number;
   /** Silent lead-in, ms. */
   delay?: number;
-  /** 0..1 strength — PWM-approximated on web, impact weight on native. */
+  /** 0..1 strength, PWM-approximated on web, impact weight on native. */
   intensity?: number;
 }
 
@@ -101,7 +101,7 @@ export type MotionSpec =
       flip?: boolean;
       /** Particles per burst (default ~5). */
       count?: number;
-      /** If set, keep spawning bursts for this many ms — a sustained "shower". */
+      /** If set, keep spawning bursts for this many ms, a sustained "shower". */
       duration?: number;
       gravityX?: number;
       gravityY?: number;
@@ -117,7 +117,7 @@ export interface MotionRuntime {
 /**
  * A motion driver renders a MotionSpec. The built-in driver is dependency-free;
  * heavier ones (tsParticles, react-rewards) can be supplied here behind the same
- * interface — the "wrap only when needed" half of the hybrid plan.
+ * interface, the "wrap only when needed" half of the hybrid plan.
  */
 export interface MotionDriver {
   readonly name: string;
@@ -187,14 +187,14 @@ export interface Tactile {
   notification(type: "success" | "warning" | "error", target?: Targetish): void;
   selection(target?: Targetish): void;
 
-  // Back-compat aliases — drop-in for an existing `haptics.*` facade.
+  // Back-compat aliases, drop-in for an existing `haptics.*` facade.
   light(target?: Targetish): void;
   medium(target?: Targetish): void;
   heavy(target?: Targetish): void;
   success(target?: Targetish): void;
   warning(target?: Targetish): void;
   error(target?: Targetish): void;
-  /** A rapid rattle of ticks — a playful "buzz" of feedback. */
+  /** A rapid rattle of ticks, a playful "buzz" of feedback. */
   buzz(target?: Targetish): void;
 
   /** A button going down. Pair with `release()` and it reads as one physical key. */
@@ -229,6 +229,6 @@ export interface Tactile {
   set(config: Partial<TactileConfig>): void;
 
   diagnose(): TactileReport;
-  /** Fire every event in sequence with gaps, logging each — for on-device tuning. */
+  /** Fire every event in sequence with gaps, logging each, for on-device tuning. */
   test(): Promise<void>;
 }

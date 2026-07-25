@@ -19,7 +19,7 @@ export function createTactile(config = {}) {
     let audioCtx = null;
     let sound = null;
     let soundName = false;
-    let soundSpec; // last requested — for idempotent re-enable
+    let soundSpec; // last requested, for idempotent re-enable
     function getAudioContext() {
         if (!isBrowser)
             return null;
@@ -46,7 +46,7 @@ export function createTactile(config = {}) {
     function enableSound(pack) {
         if (pack === soundSpec) {
             if (pack)
-                resumeAudio(); // already in this state — just keep it unlocked
+                resumeAudio(); // already in this state, so just keep it unlocked
             return;
         }
         soundSpec = pack;
@@ -54,8 +54,8 @@ export function createTactile(config = {}) {
         soundName = false;
         if (!pack || !isBrowser)
             return;
-        // Create + resume the context SYNCHRONOUSLY within the enabling gesture —
-        // doing it later (inside the async import) is what left iOS silent.
+        // Create + resume the context SYNCHRONOUSLY within the enabling gesture.
+        // Doing it later (inside the async import) is what left iOS silent.
         if (getAudioContext())
             resumeAudio();
         void (async () => {
@@ -66,7 +66,7 @@ export function createTactile(config = {}) {
                     return;
                 const channel = await resolved.create(ctx);
                 // AUDIT-001 (High): no re-check that `soundSpec === pack` here. A set({sound:false})
-                // or pack swap issued while this import/create was in flight gets clobbered — the
+                // or pack swap issued while this import/create was in flight gets clobbered: the
                 // channel re-enables itself after the caller turned it off. Fix: guard with
                 // `if (soundSpec !== pack) return;` before assigning. See docs/code-audit.md.
                 sound = channel;
@@ -81,10 +81,10 @@ export function createTactile(config = {}) {
     // ── motion channel: opt-in, lazily constructed ──────────────────────────────
     let motion = null;
     let motionName = false;
-    let motionSpec; // last requested — for idempotent re-enable
+    let motionSpec; // last requested, for idempotent re-enable
     function enableMotion(driver) {
         if (driver === motionSpec)
-            return; // already in this state — don't tear down a loaded driver
+            return; // already in this state, so don't tear down a loaded driver
         motionSpec = driver;
         motion = null;
         motionName = false;
@@ -98,7 +98,7 @@ export function createTactile(config = {}) {
         void (async () => {
             try {
                 const { domMotionDriver } = await import("./motion/index.js");
-                // AUDIT-001 (High, motion extension): same stale-async race as enableSound —
+                // AUDIT-001 (High, motion extension): same stale-async race as enableSound:
                 // a set({motion:false}) during this import is clobbered. Guard with
                 // `if (motionSpec !== driver) return;` before assigning. See docs/code-audit.md.
                 motion = domMotionDriver;
@@ -114,9 +114,9 @@ export function createTactile(config = {}) {
         enableSound(config.sound);
     if (config.motion)
         enableMotion(config.motion);
-    // Resume audio on ANY gesture while suspended (NOT once — the bug before).
+    // Resume audio on ANY gesture while suspended (NOT once, which was the bug before).
     // AUDIT-003 (High): these 4 capturing listeners (and any AudioContext) are never
-    // removed — the returned Tactile has no dispose()/destroy(). Fine for the documented
+    // removed: the returned Tactile has no dispose()/destroy(). Fine for the documented
     // single-instance usage; leaks listeners + can exhaust the AudioContext cap under
     // React StrictMode / HMR / SPA churn. onGesture is already a stable ref, so a
     // dispose() can removeEventListener it. See docs/code-audit.md + docs/DEFERRED.md.
@@ -136,7 +136,7 @@ export function createTactile(config = {}) {
             backend.fire(recipe.haptic, strength);
         }
         if (sound && recipe.sound) {
-            resumeAudio(); // we're inside the tap gesture — safe to unlock here too
+            resumeAudio(); // we're inside the tap gesture, so it's safe to unlock here too
             sound.play(recipe.sound, { volume });
         }
         if (motion && recipe.motion) {
@@ -205,7 +205,7 @@ export function createTactile(config = {}) {
         },
         set: (next) => {
             // AUDIT-002 (High): re-merges from the IMMUTABLE constructor config.events, so two
-            // successive set({events}) calls don't accumulate — the second drops the first's
+            // successive set({events}) calls don't accumulate: the second drops the first's
             // overrides. Fix: keep a mutable accumulator and resolveEvents from it. code-audit.md.
             if (next.events)
                 events = resolveEvents({ ...config.events, ...next.events });
@@ -279,10 +279,10 @@ function buildNotes(platform, probe, hapticsOn, soundName, motionName) {
     if (!hapticsOn)
         notes.push("Haptic channel off.");
     if (platform.desktop)
-        notes.push("Desktop has no vibration motor — sound + motion carry the feedback here.");
+        notes.push("Desktop has no vibration motor, so sound + motion carry the feedback here.");
     if (platform.android) {
         notes.push(probe.vibrate?.exists
-            ? "Android: navigator.vibrate is available. If a call returns true but you feel nothing, the OS vibration / touch-feedback setting or battery saver is off — not the app."
+            ? "Android: navigator.vibrate is available. If a call returns true but you feel nothing, the OS vibration / touch-feedback setting or battery saver is off, not the app."
             : "Android: navigator.vibrate is missing in this engine.");
     }
     if (platform.ios) {

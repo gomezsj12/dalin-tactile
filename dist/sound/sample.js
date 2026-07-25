@@ -7,7 +7,7 @@ export function createSamplePack(manifest) {
             const buffers = new Map();
             const master = ctx.createGain();
             master.connect(ctx.destination);
-            // Small UI sounds — decode them all up front. A missing/failed file just
+            // Small UI sounds, so decode them all up front. A missing/failed file just
             // leaves that cue silent rather than throwing.
             await Promise.all(Object.entries(manifest.cues).map(async ([cue, file]) => {
                 try {

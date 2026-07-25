@@ -1,4 +1,4 @@
-# Error Log — @dalin/tactile
+# Error Log: @dalin/tactile
 
 > Bugs encountered and resolved during development, recorded so they aren't
 > re-introduced. Backfilled 2026-06-27 from the cautionary comments already
@@ -23,7 +23,7 @@
 
 ---
 
-### ERR-001: iOS stayed silent — AudioContext unlocked inside the async import
+### ERR-001: iOS stayed silent: AudioContext unlocked inside the async import
 
 **Status:** Resolved
 **Area:** Sound channel / audio unlock
@@ -31,13 +31,13 @@
 **Symptom:** On iOS Safari the sound channel produced no audio, even though the
 same code worked on desktop/Android.
 **Root cause:** The `AudioContext` was created and `resume()`d *after* the dynamic
-`import()` of the sound pack resolved — i.e. on a later microtask, no longer inside
+`import()` of the sound pack resolved, i.e. on a later microtask, no longer inside
 the user-gesture call stack. iOS only unlocks audio when the context is created/resumed
 **synchronously within a user gesture**; doing it post-`await` silently failed.
 **Fix:** `enableSound()` now creates and resumes the `AudioContext` **synchronously
 inside the enabling gesture**, before awaiting the pack import. The relevant comment
 in `src/index.ts` reads: *"Create + resume the context SYNCHRONOUSLY within the
-enabling gesture — doing it later (inside the async import) is what left iOS silent."*
+enabling gesture. Doing it later (inside the async import) is what left iOS silent."*
 **Lesson:** Any new audio path must touch the `AudioContext` synchronously in the
 gesture. Never move context creation/resume behind an `await`.
 
@@ -55,10 +55,10 @@ nothing resumed it again.
 **Fix:** Capturing listeners for `pointerdown` / `touchend` / `mousedown` / `keydown`
 call `resumeAudio()` on **every** gesture while suspended, and `fire()` also resumes
 inside the tap. The comment in `src/index.ts` marks this: *"Resume audio on ANY
-gesture while suspended (NOT once — the bug before)."*
+gesture while suspended (NOT once, the bug before)."*
 **Lesson:** Treat the `AudioContext` as something that can re-suspend at any time;
 resume idempotently on every gesture, not once. (Note: the always-on capturing
-listeners are why the instance currently has no teardown — see `code-audit.md`.)
+listeners are why the instance currently has no teardown; see `code-audit.md`.)
 
 ---
 
@@ -71,7 +71,7 @@ listeners are why the instance currently has no teardown — see `code-audit.md`
 **Root cause:** Apple patched the **script-driven** path for toggling a native
 `<input switch>` in iOS 26.5. The library clicks the label to trigger the tick
 (the path WebKit honored on iOS 17.4–26.4); that programmatic path is now inert.
-**Fix / workaround:** None at the library level — the fragility is in the platform.
+**Fix / workaround:** None at the library level. The fragility is in the platform.
 `diagnose()` says so explicitly in its `notes` ("iOS 26.5 patched the script path;
 silence on ≥26.5 is the platform, not the app"). The documented follow-up is a real,
 invisible **overlay switch the user's own finger toggles**, which slots into
@@ -93,10 +93,10 @@ several-seconds buzz across all channels.
 for a duration.
 **Fix:** `buzz` is now a single long haptic step (`duration: 2500`), a sustained
 synth tone with tremolo (`sound/synth.ts` `buzz` cue), and a `duration: 2500` motion
-shower — all three run for the full buzz. (Git: *"make buzz a continuous multi-second
+shower, and all three run for the full buzz. (Git: *"make buzz a continuous multi-second
 buzz across all channels"*.)
 **Lesson:** For sustained events, every channel needs its own duration/sustain
-mechanism — a long vibrate step, a `sustain` audio envelope, and a `duration` particle
-shower — kept roughly in sync. **Platform caveat:** on iOS the haptic is still a single
+mechanism (a long vibrate step, a `sustain` audio envelope, and a `duration` particle
+shower) kept roughly in sync. **Platform caveat:** on iOS the haptic is still a single
 tick regardless of the 2500 ms step (one Taptic tick per call); the "continuous" feel
 there comes from sound + motion only. Document this where `buzz` is described.

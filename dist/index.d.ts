@@ -1,5 +1,5 @@
 /**
- * @dalin/tactile — one call, three coordinated channels.
+ * @dalin/tactile: one call, three coordinated channels.
  *
  * createTactile() returns an object whose semantic methods (success, selection,
  * impact, …) fire every ENABLED channel together: a haptic (Android vibrate +

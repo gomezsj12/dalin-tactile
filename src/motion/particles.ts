@@ -1,8 +1,8 @@
 /**
  * Canvas emoji-particle system for the motion channel.
  *
- * Physics + emoji rasterization adapted from lochie/web-haptics (MIT) — the same
- * engine behind haptics.lochie.me's emoji showers — ported to dependency-free
+ * Physics + emoji rasterization adapted from lochie/web-haptics (MIT), the same
+ * engine behind haptics.lochie.me's emoji showers, ported to dependency-free
  * vanilla TS. A single shared full-screen canvas draws every particle; the rAF
  * loop runs ONLY while particles are alive and stops itself when idle. Emoji are
  * pre-rasterized to offscreen canvases for fast drawImage (cheap on iOS Safari).
@@ -204,7 +204,7 @@ function spawn(x: number, y: number, opts: BurstOptions): void {
   const emojis = opts.emojis && opts.emojis.length > 0 ? opts.emojis : ["✨"];
   const amount = Math.max(1, opts.count ?? 5);
   // AUDIT-007 (Low): drops the ENTIRE burst at the cap instead of spawning the remaining
-  // headroom (min(amount, MAX_ACTIVE - length)) — feedback vanishes under rapid input
+  // headroom (min(amount, MAX_ACTIVE - length)): feedback vanishes under rapid input
   // exactly when the user is most active. See docs/code-audit.md.
   if (particles.length + amount > MAX_ACTIVE) return;
   const gx = opts.gravityX ?? 0;
@@ -239,7 +239,7 @@ export function particleBurst(x: number, y: number, opts: BurstOptions = {}): vo
   const duration = opts.duration ?? 0;
   if (duration > 0) {
     // AUDIT-005 (Medium): these setTimeouts are untracked/uncancelable and re-spawn at the
-    // ORIGINAL captured (x, y) — they ignore scroll/element-movement/unmount and can't be
+    // ORIGINAL captured (x, y), so they ignore scroll/element-movement/unmount and can't be
     // stopped if motion is disabled mid-shower. Track timer ids + expose a cancel (tie into
     // the dispose() of AUDIT-003); re-resolve the anchor per tick. See docs/code-audit.md.
     const interval = 150;

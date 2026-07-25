@@ -1,4 +1,4 @@
-# Generated build output — never reformat (it ships as-is for GitHub installs).
+# Generated build output, never reformat (it ships as-is for GitHub installs).
 dist/
 node_modules/
 package-lock.json

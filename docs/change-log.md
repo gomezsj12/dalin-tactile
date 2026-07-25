@@ -2,6 +2,27 @@
 
 What changed, when, and why. Most recent first.
 
+## 2026-07-25 (buzz reverted, em dashes gone repo-wide)
+
+- **`buzz` reverted.** The rebuild gave it a detuned octave under a 700 Hz lowpass
+  to make it hum rather than rasp. It sounded worse, so the original recipe is back
+  verbatim: 120 Hz sawtooth, gain 0.12, tremolo 28 Hz, no filter and no partials.
+  It is now the only cue in the pack with neither. Confirmed against a replica of
+  the pre-rebuild signal path in `OfflineAudioContext`: peak 0.344 vs 0.327, RMS
+  0.123 vs 0.115, and RMS above 1 kHz 0.0359 vs 0.0338, so the harmonics the
+  lowpass had been eating are back. The remaining few percent is the soft-clip
+  shaper's 1.74 slope standing in for the old flat 1.6 master gain.
+- **Em dashes removed from every tracked file**, per the machine-wide writing
+  contract, finishing the pass that covered five docs earlier today. This round
+  took the other 11 markdown files (146 of them) plus source comments in 10 `src/`
+  files, `demo/index.html`, `eslint.config.js`, `scripts/check-size.mjs`,
+  `.prettierignore` and the CI workflow. Three were not comments at all but text a
+  user reads: the `package.json` `description`, and two `diagnose()` notes strings.
+  All 16 markdown files now pass `lint-writing.mjs`, and `git ls-files | xargs grep
+  -l` finds no remaining instance anywhere in the repo.
+- **Generated output rebuilt:** `dist/` refreshed from `src/`, since the comment
+  text is emitted into it.
+
 ## 2026-07-25 (synth pack rebuilt: 20 cues, 5 new events, `cue()`)
 
 Prompted by [cuelume](https://github.com/Danilaa1/cuelume), whose pitch is a palette of

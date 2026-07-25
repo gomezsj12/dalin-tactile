@@ -12,7 +12,7 @@ export function detectPlatform(): Platform {
   }
   const ua = navigator.userAgent || "";
   const hasTouch = typeof document !== "undefined" && "ontouchend" in document;
-  // iPadOS 13+ reports a Mac UA — disambiguate by touch support.
+  // iPadOS 13+ reports a Mac UA, so disambiguate by touch support.
   const ios = /iP(hone|ad|od)/.test(ua) || (/Macintosh/.test(ua) && hasTouch);
   const android = /Android/.test(ua);
   const standaloneMedia =
