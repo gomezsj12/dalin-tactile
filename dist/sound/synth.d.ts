@@ -481,15 +481,10 @@ declare const CUES: {
     buzz: {
         wave: "sawtooth";
         freq: number;
-        partials: number[];
         dur: number;
         gain: number;
         sustain: true;
         tremolo: number;
-        filter: {
-            f: number;
-            q: number;
-        };
     }[];
 };
 /** Cue names the built-in pack exposes. */

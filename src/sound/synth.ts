@@ -175,11 +175,12 @@ const CUES = {
     { wave: "sine", freq: 170, to: 68, dur: 0.15, gain: 0.5, filter: { f: 900 } },
     { at: 0.03, wave: "sine", freq: 104, to: 40, dur: 0.3, gain: 0.55, filter: { f: 600 } },
   ],
-  // A sustained ~2.5s "bzzzz": sawtooth plus a detuned octave, chopped by a
-  // square tremolo, lowpassed so it hums instead of rasping.
-  buzz: [
-    { wave: "sawtooth", freq: 118, partials: [2.01], dur: 2.5, gain: 0.13, sustain: true, tremolo: 27, filter: { f: 700, q: 1.4 } },
-  ],
+  // A sustained low sawtooth with a square tremolo, a continuous "bzzzz" for ~2.5s.
+  // Deliberately UNFILTERED and with no partials, unlike every other cue here.
+  // The rebuild tried a detuned octave under a 700 Hz lowpass to make it hum
+  // rather than rasp; it sounded worse, so this is the original recipe restored
+  // verbatim (120 Hz, gain 0.12, tremolo 28 Hz). The rasp is the point. Leave it.
+  buzz: [{ wave: "sawtooth", freq: 120, dur: 2.5, gain: 0.12, sustain: true, tremolo: 28 }],
 } satisfies Record<string, Voice[]>;
 
 /** Cue names the built-in pack exposes. */

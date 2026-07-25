@@ -130,8 +130,10 @@ tunable layer over this and is honest about the fragility living in the platform
   biquad, harmonic or inharmonic partials, a tremolo LFO, and a few cents of
   random pitch drift. A voice's `at` is its offset from the cue's onset, so
   voices **layer**: `thud` is a noise snap over two simultaneous sub-bass booms.
-  `buzz` is the one sustained cue (a sawtooth plus a detuned octave, chopped by a
-  square LFO, ~2.5 s).
+  `buzz` is the odd one out: the only sustained cue (~2.5 s), and the only one
+  with no filter and no partials, because the rebuild's filtered version sounded
+  worse and the original 120 Hz sawtooth plus square LFO was restored verbatim.
+  Its rasp is deliberate. Don't filter it.
 - **Output stage.** All voices sum into a `master` gain, then a tanh soft-clip
   `WaveShaper` that is the last node before `ctx.destination`. Output is therefore
   bounded to ±1 by construction (the AUDIT-008 fix), and the shaper's slope at
