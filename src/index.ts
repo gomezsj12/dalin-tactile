@@ -230,6 +230,18 @@ export function createTactile(config: TactileConfig = {}): Tactile {
     warning: (target) => fireEvent("warning", target),
     error: (target) => fireEvent("error", target),
     buzz: (target) => fireEvent("buzz", target),
+    press: (target) => fireEvent("press", target),
+    release: (target) => fireEvent("release", target),
+    toggle: (target) => fireEvent("toggle", target),
+    loading: (target) => fireEvent("loading", target),
+    ready: (target) => fireEvent("ready", target),
+    cue: (name, opts) => {
+      if (!sound) return; // channel off, or the pack import is still in flight
+      resumeAudio(); // callers reach for cue() from a gesture too
+      // Multiply, don't replace: a global volume: 0.5 still holds for one-off cues.
+      sound.play(name, { volume: volume * (opts?.volume ?? 1) });
+    },
+    cues: () => sound?.cues ?? [],
     play: (input, target) => {
       // AUDIT-018 (Low): play(0) / play([]) build an empty pattern, but fire() calls
       // backend.cancel() before checking length, so an "empty" play silently kills any

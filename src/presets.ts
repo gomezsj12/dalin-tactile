@@ -19,6 +19,25 @@ export const DEFAULT_EVENTS: EventTable = {
     sound: "tick",
     motion: { kind: "particles", emojis: ["✨"], count: 3 },
   },
+  press: {
+    // Scale BELOW 1: the element goes in, which is the whole point of a press.
+    haptic: { steps: [{ duration: 18, intensity: 0.6 }], ios: "light" },
+    sound: "press",
+    motion: { kind: "boop", scale: 0.94, timing: 160 },
+  },
+  release: {
+    haptic: { steps: [{ duration: 9, intensity: 0.35 }], ios: "light" },
+    sound: "release",
+    motion: { kind: "boop", scale: 1.05, timing: 220 },
+  },
+  toggle: {
+    haptic: { steps: [{ duration: 24, intensity: 0.7 }], ios: "light" },
+    sound: "toggle",
+    motion: [
+      { kind: "boop", scale: 1.1 },
+      { kind: "particles", emojis: ["🔘", "✨"], count: 3, flip: true },
+    ],
+  },
   light: {
     haptic: { steps: [{ duration: 28, intensity: 0.65 }], ios: "light" },
     sound: "tap",
@@ -26,7 +45,8 @@ export const DEFAULT_EVENTS: EventTable = {
   },
   medium: {
     haptic: { steps: [{ duration: 70, intensity: 1 }], ios: "medium" },
-    sound: "tap",
+    // The impact ladder is audible as well as felt: tap, then press, then thud.
+    sound: "press",
     motion: [
       { kind: "boop", scale: 1.12 },
       { kind: "particles", emojis: ["👍", "✨"], count: 5, flip: true },
@@ -85,6 +105,32 @@ export const DEFAULT_EVENTS: EventTable = {
     },
     sound: "error",
     motion: { kind: "particles", emojis: ["⛔️", "🚫", "💢"], count: 6 },
+  },
+  loading: {
+    // Two soft ticks spaced like a heartbeat: something is happening, nothing is done.
+    haptic: {
+      steps: [
+        { duration: 12, intensity: 0.4 },
+        { delay: 160, duration: 12, intensity: 0.4 },
+      ],
+      ios: "light",
+    },
+    sound: "loading",
+    motion: { kind: "particles", emojis: ["⏳", "💭"], count: 3, flip: true },
+  },
+  ready: {
+    haptic: {
+      steps: [
+        { duration: 20, intensity: 0.55 },
+        { delay: 45, duration: 45, intensity: 0.9 },
+      ],
+      ios: "medium",
+    },
+    sound: "ready",
+    motion: [
+      { kind: "boop", scale: 1.14 },
+      { kind: "particles", emojis: ["🟢", "✨", "👌"], count: 5, flip: true },
+    ],
   },
   buzz: {
     // Sustained on Android haptics, sound, and motion. iOS haptics remain one tick.

@@ -142,7 +142,7 @@ in TOOLING.md). CI mirrors the gates + a `dist/` drift guard.
 | `src/pattern.ts` | `stepsToPattern()` — PWM/`vibrate` flattening. The one unit-tested module (`pattern.test.ts`). |
 | `src/backends/web.ts` | Android `vibrate` + iOS tick routing; `probe()` for diagnostics. |
 | `src/ios-switch.ts` | The iOS `<input switch>` Taptic hack + the iOS 26.5 caveat. |
-| `src/sound/synth.ts` | Built-in zero-asset Web Audio cues (incl. the sustained `buzz`). |
+| `src/sound/synth.ts` | Built-in zero-asset Web Audio cues: the 20-cue table, the voice engine (partials, filter sweeps, noise, drift), and the soft-clip output stage. Retuning a cue means editing the table, nothing else. |
 | `src/motion/particles.ts` | Canvas emoji-particle engine — the perf hotspot. |
 | `src/motion/dom-driver.ts` | The built-in `MotionDriver` (boop + particles). |
 | `package.json` | Exports map, scripts, the zero-`dependencies` rule. |

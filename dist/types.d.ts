@@ -13,7 +13,7 @@
  * The haptic surface is Capacitor / iOS `UIFeedbackGenerator` shaped, so a
  * native backend can slot in later without changing call sites.
  */
-export type EventName = "selection" | "light" | "medium" | "heavy" | "success" | "warning" | "error" | "buzz";
+export type EventName = "selection" | "press" | "release" | "toggle" | "light" | "medium" | "heavy" | "success" | "warning" | "error" | "loading" | "ready" | "buzz";
 export interface HapticStep {
     /** Motor-on time, ms. */
     duration?: number;
@@ -184,8 +184,32 @@ export interface Tactile {
     error(target?: Targetish): void;
     /** A rapid rattle of ticks — a playful "buzz" of feedback. */
     buzz(target?: Targetish): void;
+    /** A button going down. Pair with `release()` and it reads as one physical key. */
+    press(target?: Targetish): void;
+    /** A button coming back up. The complement of `press()`. */
+    release(target?: Targetish): void;
+    /** A switch or checkbox landing in its other state: one detent. */
+    toggle(target?: Targetish): void;
+    /** Work started. Deliberately unresolved, because nothing has resolved yet. */
+    loading(target?: Targetish): void;
+    /** Work finished and something is now available. Lighter than `success()`. */
+    ready(target?: Targetish): void;
     /** Fire an event by name, or raw haptic input, with an optional motion target. */
     play(input: EventName | HapticStep[] | number, target?: Targetish): void;
+    /**
+     * Play one sound cue on its own: no haptic, no motion. Use it for the timbres
+     * that aren't wired to an event (chime, droplet, swipe, …) or when a surface
+     * only wants audio. `opts.volume` MULTIPLIES the instance volume, so a global
+     * `volume: 0.5` still holds. A no-op when the sound channel is off, still
+     * loading, or the pack doesn't know the cue.
+     *
+     * Cue names come from the active pack: `SYNTH_CUES` for the built-in one.
+     */
+    cue(name: string, opts?: {
+        volume?: number;
+    }): void;
+    /** Cue names the active pack exposes. Empty when sound is off or still loading. */
+    cues(): readonly string[];
     /** Re-tune or toggle channels at runtime (e.g. a settings screen). */
     set(config: Partial<TactileConfig>): void;
     diagnose(): TactileReport;

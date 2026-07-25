@@ -16,7 +16,11 @@ const ROOT = fileURLToPath(new URL("..", import.meta.url));
 // entry → gzipped KB budget. Core must stay small; channels are opt-in chunks.
 const BUDGETS = {
   "dist/index.js": 6,
-  "dist/sound/synth.js": 4,
+  // Raised 4 -> 6 when the synth pack went from 7 raw-oscillator cues to 20
+  // filtered/layered ones. A good chunk of that is the tuning commentary in the
+  // cue table, which tsc emits into dist; it stays because whoever retunes a
+  // frequency needs to know why it was that frequency.
+  "dist/sound/synth.js": 6,
   "dist/sound/sample.js": 2,
   "dist/motion/particles.js": 5,
   "dist/motion/dom-driver.js": 2,

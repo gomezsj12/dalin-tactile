@@ -123,10 +123,21 @@ tunable layer over this and is honest about the fragility living in the platform
 
 ## Channel 2 — Sound
 
-- **Synth pack (`sound/synth.ts`)** — the `sound: true` default. Each cue is a
-  tiny oscillator + gain envelope (a few of them layered for `thud`/`success`/etc.).
-  Zero asset weight; lazy-loaded so a haptics-only build never bundles it. The
-  `buzz` cue is a sustained sawtooth with a square-LFO tremolo (~2.5 s).
+- **Synth pack (`sound/synth.ts`)** is the `sound: true` default: 20 cues, zero
+  asset weight, lazy-loaded so a haptics-only build never bundles it. A cue is a
+  stack of *voices*, where a voice is one source (an oscillator, or a burst read
+  from a shared 1 s noise buffer) plus an amplitude envelope, and optionally a
+  biquad, harmonic or inharmonic partials, a tremolo LFO, and a few cents of
+  random pitch drift. A voice's `at` is its offset from the cue's onset, so
+  voices **layer**: `thud` is a noise snap over two simultaneous sub-bass booms.
+  `buzz` is the one sustained cue (a sawtooth plus a detuned octave, chopped by a
+  square LFO, ~2.5 s).
+- **Output stage.** All voices sum into a `master` gain, then a tanh soft-clip
+  `WaveShaper` that is the last node before `ctx.destination`. Output is therefore
+  bounded to ±1 by construction (the AUDIT-008 fix), and the shaper's slope at
+  zero, about 1.74, supplies the loudness boost a raw `master.gain` used to.
+- `SYNTH_CUES` (exported from `@dalin/tactile/sound`) is the cue-name list, and
+  `SynthCue` is the matching union type.
 - **Sample pack (`sound/sample.ts`)** — `createSamplePack({ baseUrl, cues })`
   fetches + decodes real audio files once (e.g. curated CC0 sounds), then plays
   them on demand. Files are **not** bundled — you point at a folder you control.
@@ -152,14 +163,18 @@ tunable layer over this and is honest about the fragility living in the platform
 
 ## Events & recipes
 
-`DEFAULT_EVENTS` (`presets.ts`) maps each `EventName`
-(`selection | light | medium | heavy | success | warning | error | buzz`) to an
+`DEFAULT_EVENTS` (`presets.ts`) maps each of the 13 `EventName`s (`selection |
+press | release | toggle | light | medium | heavy | success | warning | error |
+loading | ready | buzz`) to an
 `EventRecipe` spanning up to all three channels. `resolveEvents(overrides)` clones
 the defaults and merges overrides **per channel** (`haptic` / `sound` / `motion`
 are replaced wholesale, not deep-merged field-by-field — keep this in mind when
 documenting override granularity). The `impact()`/`notification()` methods are
 sugar over the matching event names; `play()` accepts an event name, a raw
-duration in ms, or a custom step array.
+duration in ms, or a custom step array. `cue(name)` skips the event table
+entirely and plays one sound cue with no haptic and no motion, which is how the
+eight palette-only timbres (`chime`, `sparkle`, `droplet`, `bloom`, `pop`,
+`swipe`, `whisper`, `page`) are reachable without an override.
 
 ## SSR / robustness model
 

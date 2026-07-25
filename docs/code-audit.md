@@ -1,6 +1,7 @@
 # Code Audit — Findings Catalogue
 
-> Last updated: **2026-06-28** — fixed AUDIT-010 after the first comprehensive review
+> Last updated: **2026-07-25** (fixed AUDIT-008 and revised AUDIT-019's node counts
+> while rebuilding the synth pack), after the first comprehensive review
 > of `@dalin/tactile`,
 > and the run that stood up this review system. Session log:
 > [`reviews/2026-06-27-initial-comprehensive-review.md`](./reviews/2026-06-27-initial-comprehensive-review.md).
@@ -36,8 +37,8 @@ in [Verified sound](#verified-sound-no-finding) so they aren't re-litigated).
 | Critical | 0 | 0 | 0 |
 | High | 3 | 0 | 3 |
 | Medium | 2 | 1 | 3 |
-| Low | 8 | 5 | 13 |
-| **Total** | **13** | **6** | **19** |
+| Low | 7 | 6 | 13 |
+| **Total** | **12** | **7** | **19** |
 
 | ID | Sev | Title |
 |----|-----|-------|
@@ -209,8 +210,8 @@ visual feedback vanishes entirely right when the user is most active.
 ### AUDIT-008: Synth `master.gain = 1.6` with no limiter
 
 **Severity:** Low
-**Files:** `src/sound/synth.ts` (~57–58)
-**Status:** Open
+**Files:** `src/sound/synth.ts` (the `create()` output stage)
+**Status:** Fixed (2026-07-25)
 
 `master.gain.value = 1.6` (a deliberate boost — "phone speakers are quiet") feeds
 `ctx.destination` with no limiter. Overlapping cues (a sustained 2.5 s `buzz` under
@@ -219,6 +220,26 @@ rapid taps, or `thud`'s layered sub-bass booms) can sum past 1.0 and hard-clip.
 **Recommendation:** Insert a `DynamicsCompressorNode` (or a soft-clip `WaveShaper`)
 between `master` and `destination` as a safety limiter, or lower the master gain and
 boost per-cue gains. Treat the boost as a tuning knob with a known clip risk.
+
+**Fix:** took the `WaveShaper` option, and both halves of the recommendation. The
+master gain dropped to 1.0 and a tanh soft-clip is now the last node before
+`ctx.destination`, so output is bounded to ±1 by construction rather than by
+tuning discipline. The curve's slope at zero (k/tanh(k), about 1.74 for k = 1.6)
+replaces the old boost, so quiet cues stay hot while peaks compress. A compressor
+was rejected: its attack dulls the transients these clicks are built from.
+
+Measured with `OfflineAudioContext` renders at 48 kHz, samples at or above 0.995
+of full scale:
+
+| case | peak | saturating samples |
+| --- | --- | --- |
+| loudest single cue (`thud`) | 0.81 | 0 |
+| `buzz` + `tap` + `success`, simultaneous | 0.66 | 0 |
+| two `thud`s on the same sample | 1.00 | 122 (2.5 ms) |
+| `buzz` + 8 `tap`s + 2 `thud`s, all at once | 1.00 | 258 (5.4 ms) |
+
+The two synthetic stacks reach the rail and stay there, which is the intended
+behavior: they saturate for a few milliseconds instead of clipping past 1.0.
 
 ---
 
@@ -413,13 +434,21 @@ signal that nothing was played.
 ### AUDIT-019: Synth creates nodes per cue with no reuse/disconnect
 
 **Severity:** Low
-**Files:** `src/sound/synth.ts` (`playSpec` ~61–95)
-**Status:** Open (acceptable — monitor)
+**Files:** `src/sound/synth.ts` (`playVoice`)
+**Status:** Open (acceptable — monitor). Counts revised upward 2026-07-25.
 
 Each `play(cue)` creates 2 Web Audio nodes per spec (up to 6 for `thud`, 4 for `buzz`)
 with no pooling and no explicit `disconnect()` after the envelope ends (nodes are GC'd
 once stopped). Fine at UI-cue cadence; could add GC pressure under pathological rapid
 firing.
+
+**2026-07-25 revision:** the rewritten pack raised the ceiling. A voice now costs 2
+nodes at minimum and 8 at most (3 oscillators for its partials, 3 mix gains, an
+envelope, a filter), so the heaviest cues (`success`, `thud`) reach roughly 19 nodes
+per `play()` rather than 6. One buffer is now shared and reused: a 1 s noise
+`AudioBuffer` per channel, read from a random offset. The verdict is unchanged,
+because the node count still lands far under what Web Audio handles comfortably and
+these are one-shots at tap cadence, but the number to watch is now 19, not 6.
 
 **Recommendation:** Acceptable as-is. If profiling shows audio GC pressure during rapid
 ticks, debounce repeated identical cues and/or `disconnect()` nodes on `ended`. Recorded

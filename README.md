@@ -49,6 +49,16 @@ t.impact("heavy", el);    // strong double‑thud + boom + a springy "boop" on `
 t.success(clickEvent);    // success buzz + chime + an emoji shower at the tap point
 t.buzz();                 // ~2.5s sound + emoji shower; Android vibrates, iOS ticks once
 
+// Interaction events, for the moments a button actually has:
+btn.addEventListener("pointerdown", (e) => t.press(e));   // goes in
+btn.addEventListener("pointerup", (e) => t.release(e));   // comes back up
+t.toggle(switchEl);       // one detent
+t.loading();              // work started, deliberately unresolved
+t.ready(el);              // work finished, lighter than success()
+
+// Sound with no haptic and no motion:
+t.cue("droplet");
+
 // One channel only? Drop-in replacement for a plain haptics helper:
 const haptics = createTactile();            // haptics only
 haptics.light();
@@ -62,16 +72,20 @@ The semantic methods are Capacitor / iOS `UIFeedbackGenerator`‑shaped:
 | `impact("light" \| "medium" \| "heavy")` · `light()` / `medium()` / `heavy()` | a tap → a firm press → a heavy thud |
 | `notification("success" \| "warning" \| "error")` · `success()` / `warning()` / `error()` | confirmation / caution / rejection |
 | `buzz()` | a multi-second buzz — sustained Android vibration, sound, and emoji shower; iOS haptics are one tick |
+| `press()` / `release()` | a key going down, then coming back up. Wire them to `pointerdown` / `pointerup` on the same element and the pair reads as one physical button |
+| `toggle()` | a switch or checkbox landing in its other state: one detent |
+| `loading()` / `ready()` | work started, then work finished. `loading` stays unresolved on purpose; `ready` lands lighter than `success` |
 | `play(nameOrSteps, target?)` | a preset, a raw duration in ms, or a custom step sequence |
+| `cue(name, opts?)` | one sound cue on its own: no haptic, no motion |
 
-Any method optionally takes a **target** (an `Element`, a `MouseEvent`, or `{ x, y }`) so the motion channel knows where to anchor.
+Any method optionally takes a **target** (an `Element`, a `MouseEvent`, or `{ x, y }`) so the motion channel knows where to anchor. `cue()` is the exception, since sound has nowhere to anchor.
 
 ## Channels
 
 Each channel is **opt‑in and lazily loaded** — a haptics‑only build never bundles the sound or motion code.
 
 - **haptic** — Android `navigator.vibrate` + the iOS `<input switch>` tick. Strength comes from duration + PWM duty (there's no web amplitude). iOS ignores haptic duration, so sustained presets like `buzz()` still produce one Taptic tick there.
-- **sound** — Web Audio. A built‑in zero‑asset **synth pack** by default, or your own sample pack.
+- **sound** — Web Audio. A built‑in zero‑asset **synth pack** by default, or your own sample pack. Twenty cues; see [Sound](#sound).
 - **motion** — a dependency‑free canvas **emoji‑particle** engine + a springy **boop**. Respects `prefers-reduced-motion`.
 
 Toggle or retune any channel at runtime:
@@ -97,9 +111,32 @@ createTactile({
 });
 ```
 
-## Sound packs
+## Sound
 
-The default is a tiny synthesized pack (no audio files). For richer, real sounds, point a **sample pack** at any audio files you have rights to — e.g. [CC0 sounds from freesound.org](https://freesound.org) or [Kenney](https://kenney.nl/assets):
+Twenty cues, no audio files. Each is synthesized the moment it plays, from a stack of oscillator or filtered-noise voices with their own envelopes and filters. The voices layer, which is the whole difference: `thud` is a noise snap over two *simultaneous* sub-bass booms, not three beeps in a row. Everything sums through a tanh soft-clip that is the last node before the output, so cues piling up saturate gently instead of crackling.
+
+Twelve cues back the thirteen default events (`medium` and `press` share one). The other eight are timbres to compose with:
+
+| | |
+| --- | --- |
+| **wired to an event** | `tick` `tap` `press` `release` `toggle` `thud` `success` `warning` `error` `loading` `ready` `buzz` |
+| **palette only** | `chime` `sparkle` `droplet` `bloom` `pop` `whisper` `swipe` `page` |
+
+Reach a palette cue directly, or point an event at it:
+
+```ts
+t.cue("chime");                     // sound only, no haptic and no motion
+t.cue("swipe", { volume: 0.4 });    // multiplies the instance volume, doesn't replace it
+t.cues();                           // what the active pack knows, [] until it loads
+
+createTactile({ sound: true, events: { selection: { sound: "droplet" } } });
+```
+
+`SYNTH_CUES` and the `SynthCue` union are exported from `@dalin/tactile/sound` if you're building a picker or a settings screen.
+
+### Sample packs
+
+For real recordings, point a **sample pack** at audio files you have rights to, e.g. [CC0 sounds from freesound.org](https://freesound.org) or [Kenney](https://kenney.nl/assets). Cue names are free-form, so a pack only needs the cues your events actually name:
 
 ```ts
 import { createTactile } from "@dalin/tactile";

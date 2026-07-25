@@ -330,6 +330,31 @@
         color: var(--muted);
       }
 
+      /* ── more events + sound palette (added to the public design) ──────── */
+      .section__note {
+        margin: -5px 2px 13px;
+        font-size: 13px;
+        color: var(--muted-2);
+      }
+      .section__note code {
+        font-family: var(--font-mono);
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .pills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .btn--cue {
+        padding: 8px 13px;
+        font-size: 13.5px;
+        font-family: var(--font-mono);
+      }
+      #palette-title {
+        margin-top: 30px;
+      }
+
       /* ── diagnostics (added to the public design) ──────────────────────── */
       .diag-actions {
         display: flex;
@@ -392,6 +417,8 @@
         .section { display: none; }
         /* …but Diagnostics is the on-device essential, so keep it. */
         .section--diag { display: block; }
+        /* Same for the palette: hearing the cues on a real phone speaker is the point. */
+        .section--play { display: block; }
       }
     </style>
   </head>
@@ -430,6 +457,30 @@
             <button class="ev ev--buzz" data-ev="buzz">buzz</button>
           </div>
         </div>
+      </section>
+
+      <section class="section section--play">
+        <h2 class="section__title">More events</h2>
+        <p class="section__note">
+          All three channels, exactly like the grid above. <code>press</code> and
+          <code>release</code> are meant to be wired to pointerdown and pointerup on the same
+          element.
+        </p>
+        <div class="pills" id="more-events">
+          <button class="btn" data-ev2="press">press</button>
+          <button class="btn" data-ev2="release">release</button>
+          <button class="btn" data-ev2="toggle">toggle</button>
+          <button class="btn" data-ev2="loading">loading</button>
+          <button class="btn" data-ev2="ready">ready</button>
+        </div>
+
+        <h2 class="section__title" id="palette-title">Sound palette</h2>
+        <p class="section__note">
+          <code>t.cue(name)</code> plays one cue with no haptic and no motion. Twenty in the
+          built-in pack; the eight the default events never touch are the timbres you compose
+          with.
+        </p>
+        <div class="pills" id="cue-palette"></div>
       </section>
 
       <section class="section">
@@ -500,6 +551,7 @@
     <script type="module">
       import { createTactile } from "../dist/index.js";
       import { domMotionDriver } from "../dist/motion/index.js";
+      import { SYNTH_CUES } from "../dist/sound/index.js";
 
       // Always render motion, even with the OS "reduce motion" setting on — the
       // whole point of the demo is to feel the feedback (mirrors the public site).
@@ -526,6 +578,28 @@
           t[key](target); // selection · light · medium · heavy · success · warning · error · buzz
         });
       });
+
+      // ── more events: same three channels, pill buttons ───────────────────
+      document.querySelectorAll("[data-ev2]").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          t[btn.dataset.ev2]({ el: btn, x: e.clientX, y: e.clientY });
+        });
+      });
+
+      // ── sound palette: t.cue(name), sound channel only ───────────────────
+      // Events the default table already wires, so the palette can mark which
+      // cues are "spare" timbres you reach for yourself.
+      const WIRED = new Set(["tick", "tap", "press", "release", "toggle", "thud",
+        "success", "warning", "error", "loading", "ready", "buzz"]);
+      const palette = $("cue-palette");
+      for (const name of SYNTH_CUES) {
+        const b = document.createElement("button");
+        b.className = "btn btn--cue";
+        b.textContent = WIRED.has(name) ? name : `${name} ✦`;
+        b.title = WIRED.has(name) ? "also used by a default event" : "palette-only timbre";
+        b.addEventListener("click", () => t.cue(name));
+        palette.appendChild(b);
+      }
 
       // ── Install + Usage docs: tabbed snippets with copy ──────────────────
       const INSTALL = {

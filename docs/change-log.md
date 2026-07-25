@@ -2,6 +2,46 @@
 
 What changed, when, and why. Most recent first.
 
+## 2026-07-25 (synth pack rebuilt: 20 cues, 5 new events, `cue()`)
+
+Prompted by [cuelume](https://github.com/Danilaa1/cuelume), whose pitch is a palette of
+cues with genuinely different shapes rather than variations on one click. Our pack had
+seven cues, every one a bare oscillator plus a gain ramp.
+
+- **Synth engine rewritten.** A cue is now a stack of *voices*: one source (an
+  oscillator, or a burst read from a shared 1 s noise buffer) plus an envelope, and
+  optionally a biquad with a cutoff sweep, harmonic or inharmonic partials, a tremolo
+  LFO, and a few cents of random pitch drift so rapid repeats don't machine-gun.
+  Partial stacks are gain-normalized, so `gain` means the same thing whether a voice
+  has one layer or four.
+- **Voices layer.** `delay` (a gap after the previous voice) became `at` (an offset
+  from the cue's onset). Filtered-noise transients now sit *on top of* tonal bodies
+  instead of in front of them, which is most of why the clicks read as physical.
+  `thud`'s two sub-bass booms are finally simultaneous.
+- **AUDIT-008 fixed.** `master.gain` 1.6 became 1.0 plus a tanh soft-clip `WaveShaper`
+  as the last node before the destination, so output is bounded to ±1 by construction.
+  The curve's slope at zero supplies the old loudness boost. Verified with
+  `OfflineAudioContext` renders; see the finding for the measured table.
+- **Cues: 7 to 20.** All seven were re-voiced (`medium` moved from `tap` to `press`, so
+  the impact ladder is audible as well as felt). New: `press`, `release`, `toggle`,
+  `loading`, `ready`, `page` back new events; `chime`, `sparkle`, `droplet`, `bloom`,
+  `pop`, `whisper`, `swipe` are palette-only timbres. Levels were measured and
+  levelled, not eyeballed: `swipe` first rendered at 0.068 peak against `press` at
+  0.55, because a bandpass discards most of white noise's energy.
+- **Events: 8 to 13.** `press`, `release`, `toggle`, `loading`, `ready` each fire all
+  three channels. `press` boops to scale 0.94, below 1, so the element goes in.
+- **New public API.** `cue(name, opts?)` plays one sound cue with no haptic and no
+  motion (`opts.volume` multiplies the instance volume rather than replacing it);
+  `cues()` lists what the active pack knows. `SYNTH_CUES` and the `SynthCue` union are
+  exported from `@dalin/tactile/sound`.
+- **Tests added:** every default event names a cue the built-in pack actually has (the
+  contract that otherwise fails silently, as a mute event), every event resolves on all
+  three channels, and `cue()` is a safe no-op with no `AudioContext`. 13 pass.
+- **Size budget:** `dist/sound/synth.js` raised 4 KB to 6 KB gzipped; it measures 4.51.
+- **Demo:** a "More events" row and a 20-chip sound palette, both kept visible on
+  phones, since a phone speaker is where these get judged.
+- **Generated output rebuilt:** `dist/` refreshed from `src/`.
+
 ## 2026-06-28 (AUDIT-010 test spacing)
 
 - **AUDIT-010 fixed:** `createTactile().test()` now spaces each preset by the
