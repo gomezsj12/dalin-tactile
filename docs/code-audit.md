@@ -378,6 +378,14 @@ stale.
 `../tactile-site/src/lib/tactile/`) plus a CI check that fails on divergence. (Cross-repo
 fix, lives partly in `tactile-site`.)
 
+**Drift log.** The predicted drift happened on the first `dist/`-changing release after
+this finding was written: the synth pack rebuild (2026-07-25) left the site a generation
+behind until it was hand-copied again on `tactile-site` branch
+`feat/sync-synth-pack-rebuild`. Re-verified byte-identical with
+`diff -rq src/lib/tactile ../dalin-tactile/dist`. The finding stays **Open** because
+nothing prevents the next one: there is still no script and no CI guard. Record each
+manual sync here until one exists.
+
 ---
 
 ### AUDIT-016: Cross-repo doc references in shipped source
