@@ -1,23 +1,23 @@
-# Code Audit — Findings Catalogue
+# Code Audit: Findings Catalogue
 
 > Last updated: **2026-07-25** (fixed AUDIT-008 and revised AUDIT-019's node counts
 > while rebuilding the synth pack), after the first comprehensive review
 > of `@dalin/tactile`,
 > and the run that stood up this review system. Session log:
 > [`reviews/2026-06-27-initial-comprehensive-review.md`](./reviews/2026-06-27-initial-comprehensive-review.md).
-> The initial pass (2026-06-27) changed **no library logic** — only `// AUDIT-NNN`
+> The initial pass (2026-06-27) changed **no library logic**, only `// AUDIT-NNN`
 > locator comments + clarifying notes. Subsequent fix commits (2026-06-28) **do** change
 > logic where a finding warranted it (AUDIT-010, AUDIT-011, AUDIT-013); each is logged in
 > [`change-log.md`](./change-log.md) with its `dist/` rebuild.
 
-This file catalogues every finding from code reviews. **Findings are never deleted** —
+This file catalogues every finding from code reviews. **Findings are never deleted**:
 when fixed, their status is updated to "Fixed" with the date/commit.
 
 **Severity levels:**
-- **Critical** — security vulnerability, data corruption/loss, or crash. Must fix before release.
-- **High** — broken feature, logic bug, or significant performance issue.
-- **Medium** — code quality, maintainability, or minor performance. Fix when touching that file.
-- **Low** — style, polish, best practice. Nice to have.
+- **Critical**: security vulnerability, data corruption/loss, or crash. Must fix before release.
+- **High**: broken feature, logic bug, or significant performance issue.
+- **Medium**: code quality, maintainability, or minor performance. Fix when touching that file.
+- **Low**: style, polish, best practice. Nice to have.
 
 **Finding ID scheme:** `AUDIT-NNN`, sequential, never reused. Line numbers drift as code
 changes; the `// AUDIT-NNN` locator comment in source is the durable anchor.
@@ -49,18 +49,18 @@ in [Verified sound](#verified-sound-no-finding) so they aren't re-litigated).
 | AUDIT-005 | Medium | Sustained particle showers schedule uncancelable `setTimeout`s that re-spawn at stale coordinates |
 | AUDIT-006 | Medium | O(n²) per-frame particle collision pass (~125k checks/frame at the 500 cap) |
 | AUDIT-007 | Low | `spawn()` drops the entire burst at `MAX_ACTIVE` instead of spawning the remaining headroom |
-| AUDIT-008 | Low | Synth `master.gain = 1.6` with no limiter — overlapping cues can clip |
+| AUDIT-008 | Low | Synth `master.gain = 1.6` with no limiter, so overlapping cues can clip |
 | AUDIT-009 | Low | `backend: "auto"` (and `"web"`) both resolve to web; type/JSDoc/behavior drift (and SSR silently downgrades `"web"` → silent) |
 | AUDIT-010 | Low | `test()` uses a fixed 500 ms gap shorter than some cues, truncating long haptics / overlapping showers |
 | AUDIT-011 | Low | Unbounded PWM pattern expansion for a long, low-`intensity` custom step |
 | AUDIT-012 | Low | Per-frame per-particle emoji `Map.get` lookup in the draw loop (micro-optimization) |
-| AUDIT-013 | Low | `let particles` is never reassigned — should be `const` (ESLint `prefer-const`) |
+| AUDIT-013 | Low | `let particles` is never reassigned, so it should be `const` (ESLint `prefer-const`) |
 | AUDIT-014 | Low | Channel-level event overrides replace a channel's recipe wholesale, vs the README's "keep their defaults" wording |
 | AUDIT-015 | Low | `tactile-site` vendors a byte copy of `dist/` with no sync/drift guard |
 | AUDIT-016 | Low | Shipped source JSDoc references a cross-repo path (`notes-app/docs/haptics-roadmap.md`) |
-| AUDIT-017 | Low | Source is hand-formatted, not Prettier-clean — adoption needs a one-time reformat |
+| AUDIT-017 | Low | Source is hand-formatted, not Prettier-clean, so adoption needs a one-time reformat |
 | AUDIT-018 | Low | `play(0)` / `play([])` calls `backend.cancel()` then no-ops, silently killing an in-flight vibration |
-| AUDIT-019 | Low | Synth creates 2–6 Web Audio nodes per cue with no reuse/disconnect (acceptable; monitor) |
+| AUDIT-019 | Low | Synth creates up to ~19 Web Audio nodes per cue with no reuse/disconnect (acceptable; monitor) |
 
 ---
 
@@ -85,7 +85,7 @@ pack). `diagnose()` then reports the channel on, and `fire()` will play it. With
 narrower). The state self-corrects on the next `set()`.
 
 **Recommendation:** Capture the requested spec as a local token and guard the
-post-await assignment — `if (soundSpec !== pack) return;` before assigning (and the
+post-await assignment: `if (soundSpec !== pack) return;` before assigning (and the
 matching `motionSpec !== driver` check in `enableMotion`).
 
 ---
@@ -103,14 +103,14 @@ overrides and **silently discards the first `set`'s overrides**. A consumer tuni
 different events across two settings interactions will find the first reverts. This is a
 lost-update bug in a public method, with no error or warning.
 
-**Recommendation:** Maintain a mutable accumulator —
+**Recommendation:** Maintain a mutable accumulator,
 `appliedOverrides = { ...appliedOverrides, ...next.events }`, then
-`events = resolveEvents(appliedOverrides)` — or merge per-event onto the current table.
+`events = resolveEvents(appliedOverrides)`, or merge per-event onto the current table.
 Document whether per-call overrides are meant to be cumulative or replacing.
 
 ---
 
-### AUDIT-003: No `dispose()` — per-instance listener + `AudioContext` leak
+### AUDIT-003: No `dispose()`: a per-instance listener + `AudioContext` leak
 
 **Severity:** High
 **Files:** `src/index.ts` (gesture listeners ~156–161; returned object ~204–241; `getAudioContext` ~76–90)
@@ -118,7 +118,7 @@ Document whether per-call overrides are meant to be cumulative or replacing.
 
 Every `createTactile()` attaches **four capturing `window` listeners**
 (`pointerdown`/`touchend`/`mousedown`/`keydown`) and may lazily open an `AudioContext`,
-but the returned `Tactile` has **no `dispose()`/`destroy()`** — the listeners and the
+but the returned `Tactile` has **no `dispose()`/`destroy()`**: the listeners and the
 context live for the page's lifetime. For the documented "one shared instance" usage
 this is fine, but under **React StrictMode / HMR / SPA route churn** repeated
 construction accumulates listeners and can exhaust the browser `AudioContext` cap
@@ -140,12 +140,12 @@ any pending particle-shower timers. Document calling it on unmount. Tracked in
 
 The `buzz` preset and README market a "continuous ~2.5 s buzz" across all channels, but
 on iOS `web.fire()` calls `iosTick()` once and returns, ignoring the 2500 ms haptic
-step (iOS has no Vibration API — only the discrete `<input switch>` tick). So on iOS the
+step (iOS has no Vibration API, only the discrete `<input switch>` tick). So on iOS the
 **haptic** channel of `buzz` is a single tick; only sound + motion run the full duration.
 The claim is accurate on Android, false on iOS.
 
 **Recommendation:** Document the iOS limitation per-platform (e.g. "iOS: a single tick;
-sound + motion carry the duration"), and/or — if a sustained iOS feel is wanted — repeat
+sound + motion carry the duration"), and/or, if a sustained iOS feel is wanted, repeat
 `iosTick()` on an interval across the recipe duration to approximate a rattle. Keep
 `diagnose()`'s honesty. See [`error-log.md`](./error-log.md) ERR-004.
 
@@ -183,7 +183,7 @@ when an element target is given; stop the shower when the canvas/host is gone.
 `resolveCollisions()` runs a pairwise pass every rAF frame with no spatial partitioning.
 At the `MAX_ACTIVE = 500` cap that's ~125k distance checks per frame; a single `buzz`
 holds only ~80 particles (~3k checks), so the worst case needs several stacked
-showers/rapid taps — but on a low-end phone the collision pass is the most likely jank
+showers/rapid taps, but on a low-end phone the collision pass is the most likely jank
 source under sustained load.
 
 **Recommendation:** Gate collisions behind a lower particle threshold (skip above ~80),
@@ -198,7 +198,7 @@ before/after on a real device. Lowering `MAX_ACTIVE` is the cheapest mitigation.
 **Files:** `src/motion/particles.ts` (`spawn`, ~199)
 **Status:** Open
 
-`spawn()` does `if (particles.length + amount > MAX_ACTIVE) return` — it drops the
+`spawn()` does `if (particles.length + amount > MAX_ACTIVE) return`, so it drops the
 **entire** burst rather than spawning the remaining headroom. Under rapid input the
 visual feedback vanishes entirely right when the user is most active.
 
@@ -213,7 +213,7 @@ visual feedback vanishes entirely right when the user is most active.
 **Files:** `src/sound/synth.ts` (the `create()` output stage)
 **Status:** Fixed (2026-07-25)
 
-`master.gain.value = 1.6` (a deliberate boost — "phone speakers are quiet") feeds
+`master.gain.value = 1.6` (a deliberate boost, "phone speakers are quiet") feeds
 `ctx.destination` with no limiter. Overlapping cues (a sustained 2.5 s `buzz` under
 rapid taps, or `thud`'s layered sub-bass booms) can sum past 1.0 and hard-clip.
 
@@ -258,7 +258,7 @@ intent). Type-faithful but misleading.
 
 **Recommendation:** Keep the forward-looking type, but soften the JSDoc to "auto/web
 both select the web backend today; native is deferred (see ROADMAP)", or branch on
-`"auto"` explicitly. Low priority — it's documentation accuracy, not a runtime bug.
+`"auto"` explicitly. Low priority: it's documentation accuracy, not a runtime bug.
 
 **Resolution:** Updated `TactileConfig.backend` JSDoc and the adjacent backend-selection
 source comment to document current behavior: browsers use the pure-web backend for
@@ -321,7 +321,7 @@ The render loop calls `getEmojiCanvas(p.emoji)` (a `Map.get`) for every particle
 frame. Cheap, but resolvable once at spawn.
 
 **Recommendation:** Resolve and store each particle's rasterized canvas reference on the
-`Particle` at spawn time instead of a per-frame `Map` lookup. Micro-optimization — do it
+`Particle` at spawn time instead of a per-frame `Map` lookup. Micro-optimization, so do it
 opportunistically when touching the engine for AUDIT-006.
 
 ---
@@ -334,7 +334,7 @@ opportunistically when touching the engine for AUDIT-006.
 
 `let particles: Particle[] = []` is mutated (push/pop/index) but never reassigned, so it
 should be `const`. ESLint flags it; the rule is set to **warn** (not error) in
-`eslint.config.js` only because this review does not change library logic — flip it back
+`eslint.config.js` only because this review does not change library logic. Flip it back
 to `error` once the source is changed.
 
 **Resolution:** Changed the binding to `const` and restored `prefer-const` to an ESLint
@@ -350,7 +350,7 @@ error.
 
 `resolveEvents` merges overrides **per channel** (`haptic`/`sound`/`motion` are taken
 whole from the override or whole from the default), not field-by-field. The README's
-"override just what you want — the rest keep their defaults" reads as field-level, but
+"override just what you want, the rest keep their defaults" reads as field-level, but
 overriding `events.success.motion` replaces the entire motion spec (you can't tweak just
 `count`). Type-faithful, but the granularity isn't what the wording implies.
 
@@ -376,7 +376,7 @@ stale.
 **Recommendation:** Have `tactile-site` consume the package as a real dependency
 (`github:gomezsj12/dalin-tactile`) or add a `sync:site` script (copy `dist/` →
 `../tactile-site/src/lib/tactile/`) plus a CI check that fails on divergence. (Cross-repo
-fix — lives partly in `tactile-site`.)
+fix, lives partly in `tactile-site`.)
 
 ---
 
@@ -386,7 +386,7 @@ fix — lives partly in `tactile-site`.)
 **Files:** `src/index.ts` (~10), `src/ios-switch.ts` (~39)
 **Status:** Open
 
-Two shipped source files' JSDoc point at `notes-app/docs/haptics-roadmap.md` — a path
+Two shipped source files' JSDoc point at `notes-app/docs/haptics-roadmap.md`, a path
 that doesn't exist in this package (and is a private sibling repo). A consumer reading
 the published source/types hits a dangling reference.
 
@@ -435,7 +435,7 @@ signal that nothing was played.
 
 **Severity:** Low
 **Files:** `src/sound/synth.ts` (`playVoice`)
-**Status:** Open (acceptable — monitor). Counts revised upward 2026-07-25.
+**Status:** Open (acceptable, monitor). Counts revised upward 2026-07-25.
 
 Each `play(cue)` creates 2 Web Audio nodes per spec (up to 6 for `thud`, 4 for `buzz`)
 with no pooling and no explicit `disconnect()` after the envelope ends (nodes are GC'd
@@ -458,33 +458,33 @@ so a future review doesn't re-flag it as new.
 
 ## Verified sound (no finding)
 
-Checked explicitly and found correct — recorded so future reviews don't re-litigate.
+Checked explicitly and found correct, recorded so future reviews don't re-litigate.
 The first three were **adversarially refuted** during this review (a finder flagged them;
 a skeptic disproved the mechanism).
 
-- **`ensureCanvas` resize listener is NOT a leak** — a finder claimed each canvas
+- **`ensureCanvas` resize listener is NOT a leak.** A finder claimed each canvas
   re-creation accumulates a `resize` listener. Refuted: `resize` is a single
   module-level function reference, and `addEventListener("resize", resize)` with the
   **same** reference + default capture is idempotent per the DOM spec (duplicate
   registrations are discarded). No accumulation. (`particles.ts:60,88`)
-- **`sideEffects: false` is correct** — every module reachable from the three exports has
+- **`sideEffects: false` is correct.** Every module reachable from the three exports has
   **no import-time side effects** (only declarations); runtime side effects happen on
   `createTactile()` call, not module evaluation. Tree-shaking-safe. (`package.json:11`)
-- **The new ESLint/CI config is not "dead on arrival"** — finders claimed the added
+- **The new ESLint/CI config is not "dead on arrival".** Finders claimed the added
   scripts/deps don't exist and lint/CI would fail immediately. Refuted: `package.json`
   defines `lint`/`format`/`format:check`/`size`, `eslint.config.js` ignores `scripts/`
   and `**/*.mjs`, `npm run lint` exits 0 (one tracked `prefer-const` warning), and the
   size budget passes.
-- **SSR-safety holds** — every browser-global access in `index.ts` / `platform.ts` /
+- **SSR-safety holds.** Every browser-global access in `index.ts` / `platform.ts` /
   `ios-switch.ts` / `motion/*` is `typeof`-guarded or only reachable after a `document`
   existence proof. `createTactile()` returns a working silent object with no DOM.
-- **`createSamplePack` has no injection/SSRF surface** — it `fetch`es **developer-supplied**
+- **`createSamplePack` has no injection/SSRF surface.** It `fetch`es **developer-supplied**
   manifest URLs (not user input), and a missing/failed file leaves that cue silent rather
   than throwing. (`sample.ts:38–49`)
-- **`demo/server.mjs` guards path traversal** — it `normalize`s the joined path and
+- **`demo/server.mjs` guards path traversal.** It `normalize`s the joined path and
   rejects anything not `startsWith(ROOT)` before reading. Dev-only, but correct.
-- **`stepsToPattern` parity contract is correct and unit-tested** — pattern starts on an
+- **`stepsToPattern` parity contract is correct and unit-tested.** The pattern starts on an
   on-value, a leading delay becomes a `0`-length on-pulse, trailing silence is dropped;
   `pattern.test.ts` pins all of it (6/6 green).
-- **The self-stopping rAF loop is correct** — the particle loop runs only while particles
+- **The self-stopping rAF loop is correct.** The particle loop runs only while particles
   are alive and nulls `raf` when idle, so it doesn't spin when nothing is on screen.

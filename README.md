@@ -1,6 +1,6 @@
 # @dalin/tactile
 
-**Make web interactions feel real.** One call fires coordinated **haptics + sound + motion** — each channel independently tunable and toggleable. Pure‑web today; swappable to a native haptic backend later, behind the same API.
+**Make web interactions feel real.** One call fires coordinated **haptics + sound + motion**, each channel independently tunable and toggleable. Pure‑web today; swappable to a native haptic backend later, behind the same API.
 
 ![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg) ![types: included](https://img.shields.io/badge/types-included-blue.svg) ![deps: zero](https://img.shields.io/badge/deps-zero-brightgreen.svg)
 
@@ -17,17 +17,17 @@ button.addEventListener("click", (e) => tactile.success(e));
 
 ## Why
 
-The web has no real haptics API. On Android there's only `navigator.vibrate` (binary on/off, no amplitude); on iOS Safari there's no vibration API at all — just a hack (toggling a hidden `<input switch>` fires the Taptic Engine). No library can make that "unbreakable," because the fragility lives in the platform, not the library.
+The web has no real haptics API. On Android there's only `navigator.vibrate` (binary on/off, no amplitude); on iOS Safari there's no vibration API at all, just a hack (toggling a hidden `<input switch>` fires the Taptic Engine). No library can make that "unbreakable," because the fragility lives in the platform, not the library.
 
 So `@dalin/tactile` doesn't pretend to. Instead it:
 
 - **owns a thin, tunable layer** you can fix fast and reuse everywhere,
-- **coordinates three channels** from one semantic call — haptics, sound, *and* on‑screen motion — which nothing else does, and
+- **coordinates three channels** from one semantic call (haptics, sound, *and* on‑screen motion), which nothing else does, and
 - keeps a **Capacitor‑shaped surface** so a real native backend can slot in later without touching call sites.
 
 ## Install
 
-Not on npm yet — install straight from GitHub with any package manager:
+Not on npm yet. Install straight from GitHub with any package manager:
 
 ```bash
 npm install github:gomezsj12/dalin-tactile
@@ -71,7 +71,7 @@ The semantic methods are Capacitor / iOS `UIFeedbackGenerator`‑shaped:
 | `selection()` | a value snapping to a new state |
 | `impact("light" \| "medium" \| "heavy")` · `light()` / `medium()` / `heavy()` | a tap → a firm press → a heavy thud |
 | `notification("success" \| "warning" \| "error")` · `success()` / `warning()` / `error()` | confirmation / caution / rejection |
-| `buzz()` | a multi-second buzz — sustained Android vibration, sound, and emoji shower; iOS haptics are one tick |
+| `buzz()` | a multi-second buzz: sustained Android vibration, sound, and emoji shower; iOS haptics are one tick |
 | `press()` / `release()` | a key going down, then coming back up. Wire them to `pointerdown` / `pointerup` on the same element and the pair reads as one physical button |
 | `toggle()` | a switch or checkbox landing in its other state: one detent |
 | `loading()` / `ready()` | work started, then work finished. `loading` stays unresolved on purpose; `ready` lands lighter than `success` |
@@ -82,11 +82,11 @@ Any method optionally takes a **target** (an `Element`, a `MouseEvent`, or `{ x,
 
 ## Channels
 
-Each channel is **opt‑in and lazily loaded** — a haptics‑only build never bundles the sound or motion code.
+Each channel is **opt‑in and lazily loaded**, so a haptics‑only build never bundles the sound or motion code.
 
-- **haptic** — Android `navigator.vibrate` + the iOS `<input switch>` tick. Strength comes from duration + PWM duty (there's no web amplitude). iOS ignores haptic duration, so sustained presets like `buzz()` still produce one Taptic tick there.
-- **sound** — Web Audio. A built‑in zero‑asset **synth pack** by default, or your own sample pack. Twenty cues; see [Sound](#sound).
-- **motion** — a dependency‑free canvas **emoji‑particle** engine + a springy **boop**. Respects `prefers-reduced-motion`.
+- **haptic** is Android `navigator.vibrate` + the iOS `<input switch>` tick. Strength comes from duration + PWM duty (there's no web amplitude). iOS ignores haptic duration, so sustained presets like `buzz()` still produce one Taptic tick there.
+- **sound** is Web Audio. A built‑in zero‑asset **synth pack** by default, or your own sample pack. Twenty cues; see [Sound](#sound).
+- **motion** is a dependency‑free canvas **emoji‑particle** engine + a springy **boop**. Respects `prefers-reduced-motion`.
 
 Toggle or retune any channel at runtime:
 
@@ -152,7 +152,7 @@ createTactile({
 
 ## Motion drivers
 
-The built‑in `dom` driver covers boop + emoji bursts with no dependencies. For heavier effects, implement `MotionDriver` and pass it in — e.g. wrapping [`canvas-confetti`](https://github.com/catdad/canvas-confetti), [`tsParticles`](https://github.com/tsparticles/tsparticles), or `react-rewards` (all MIT):
+The built‑in `dom` driver covers boop + emoji bursts with no dependencies. For heavier effects, implement `MotionDriver` and pass it in, e.g. wrapping [`canvas-confetti`](https://github.com/catdad/canvas-confetti), [`tsParticles`](https://github.com/tsparticles/tsparticles), or `react-rewards` (all MIT):
 
 ```ts
 import type { MotionDriver } from "@dalin/tactile/motion";
@@ -167,14 +167,14 @@ When haptics don't seem to fire, ask the library why:
 ```ts
 t.diagnose();
 // → { backend, channels, platform, vibrate: { exists, lastReturn }, iosSwitch, audio, reducedMotion, notes: [...] }
-await t.test(); // fires every preset in sequence — great for tuning on a real device
+await t.test(); // fires every preset in sequence, great for tuning on a real device
 ```
 
 `notes` is plain English, e.g. *"navigator.vibrate returned true but if you feel nothing, the OS vibration setting or battery saver is off."*
 
 ## SSR & frameworks
 
-`createTactile()` is SSR‑safe — with no DOM it returns a silent no‑op object, so you can construct it anywhere and call it freely on the client. It's framework‑agnostic; in React, keep one instance:
+`createTactile()` is SSR‑safe: with no DOM it returns a silent no‑op object, so you can construct it anywhere and call it freely on the client. It's framework‑agnostic; in React, keep one instance:
 
 ```ts
 const t = useMemo(() => createTactile({ sound: true, motion: true }), []);
@@ -186,9 +186,9 @@ The motion channel is automatically suppressed when the user has `prefers-reduce
 
 ## Platform notes
 
-- **Android** — `navigator.vibrate` works in Chrome/Firefox, but only if the OS "Touch feedback / vibration" setting and battery saver allow it.
-- **iOS Safari** — uses the `<input switch>` Taptic trick (one light tick per call), so `buzz()` gets one haptic tick while sound + motion carry the multi-second duration. Apple patched the script‑driven path in **iOS 26.5**; this is a platform limitation, not a bug.
-- **Desktop** — no vibration motor; sound + motion carry the feedback.
+- **Android**: `navigator.vibrate` works in Chrome/Firefox, but only if the OS "Touch feedback / vibration" setting and battery saver allow it.
+- **iOS Safari**: uses the `<input switch>` Taptic trick (one light tick per call), so `buzz()` gets one haptic tick while sound + motion carry the multi-second duration. Apple patched the script‑driven path in **iOS 26.5**; this is a platform limitation, not a bug.
+- **Desktop**: no vibration motor; sound + motion carry the feedback.
 - A native (Capacitor) backend behind the same API is on the roadmap, for apps that ship a native shell and want guaranteed haptics.
 
 ## Credits
