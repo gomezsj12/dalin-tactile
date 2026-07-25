@@ -381,10 +381,24 @@ fix, lives partly in `tactile-site`.)
 **Drift log.** The predicted drift happened on the first `dist/`-changing release after
 this finding was written: the synth pack rebuild (2026-07-25) left the site a generation
 behind until it was hand-copied again on `tactile-site` branch
-`feat/sync-synth-pack-rebuild`. Re-verified byte-identical with
-`diff -rq src/lib/tactile ../dalin-tactile/dist`. The finding stays **Open** because
-nothing prevents the next one: there is still no script and no CI guard. Record each
-manual sync here until one exists.
+`feat/sync-synth-pack-rebuild`, then merged to `main` and pushed. The finding stays
+**Open** because nothing prevents the next one: there is still no script and no CI
+guard. Record each manual sync here until one exists.
+
+**Verifying a sync, on Windows.** Use `--strip-trailing-cr`:
+
+```bash
+diff -r --strip-trailing-cr ../tactile-site/src/lib/tactile dist
+```
+
+A plain `diff -rq` reports every file as differing, and it is lying. This repo has
+`.gitattributes` with `* text=auto eol=lf`, so its working tree is LF.
+`tactile-site` has no `.gitattributes`, so with `core.autocrlf=true` its working
+tree checks out CRLF. Both store LF in git, meaning the committed copies match even
+when the checked-out bytes do not. Giving `tactile-site` the same `.gitattributes`
+would make the two trees agree and let the plain `diff` work; that is a one-line
+change with a whole-tree line-ending churn behind it, so it is deliberately left to
+whoever builds the real `sync:site` script.
 
 ---
 
