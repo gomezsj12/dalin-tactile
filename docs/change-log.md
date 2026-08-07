@@ -2,18 +2,28 @@
 
 What changed, when, and why. Most recent first.
 
-## 2026-08-07 (heavy becomes one pulse)
+## 2026-08-07 (heavy and medium become crisp single hits)
 
-- **`heavy` is a single hit now.** It was two events: an 80 ms rough pulse at 0.8
+- **`heavy` is one short pulse.** It was two events: an 80 ms rough pulse at 0.8
   duty, an 85 ms gap, then a 60 ms solid landing. The rough half read as weak, and
   the gap made the whole thing arrive as two medium taps instead of one hard one.
-  The recipe is now one 150 ms step at full duty, which emits `[150]`: the longest
-  unbroken on-time in the ladder, and nearly twice `medium`'s 80 ms.
+  The recipe is now one 60 ms step at full duty, which emits `[60]`.
 
-- **The ladder still separates.** `medium` and `heavy` are now the same shape at
-  different weights, so the rung that used to carry the contrast is `light`, whose
-  0.3 duty keeps it airy and rough against the two solid pulses above it. iOS is
-  unaffected: it maps to the `heavy` Taptic style either way, and ignores duration.
+- **Length is not weight, past a point.** Two longer single pulses were tried on
+  hardware first, 150 ms and 90 ms, and both read as a short buzz rather than a
+  hit. An LRA needs roughly 20 to 30 ms to reach full amplitude, and once it is
+  there, more drive time only extends the sustain. Past about 80 ms the pulse
+  stops being an impact. 60 ms clears the spin-up and stops before that line.
+
+- **`medium` came down with it.** 80 ms was longer than the new `heavy`, which
+  inverted the ladder. It is now 45 ms, so `medium` and `heavy` are the same crisp
+  shape at 1.3x apart. Worth watching: `press` is a 35 ms solid pulse, so it now
+  sits close to `medium`. The two differ in sound and in which way their boop
+  scales, and they rarely fire in sequence, but the haptics alone are similar.
+
+- **Weight now comes from below.** With both solid rungs short, the contrast is
+  carried by `light`, whose 0.3 duty keeps it airy and rough against them. iOS is
+  unaffected throughout: it maps to the `heavy` Taptic style and ignores duration.
 
 ## 2026-08-07 (20 ms PWM and retuned defaults)
 

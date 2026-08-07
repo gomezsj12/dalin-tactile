@@ -61,8 +61,8 @@ export const DEFAULT_EVENTS: EventTable = {
     motion: { kind: "particles", emojis: ["✨", "👆"], count: 4, flip: true },
   },
   medium: {
-    // One smooth thud, the middle rung: same shape as heavy, half the weight.
-    haptic: { steps: [{ duration: 80 }], ios: "medium" },
+    // One smooth tap, the middle rung: the same crisp shape as heavy, a step lighter.
+    haptic: { steps: [{ duration: 45 }], ios: "medium" },
     // The impact ladder is audible as well as felt: tap, then press, then thud.
     sound: "press",
     motion: [
@@ -71,8 +71,8 @@ export const DEFAULT_EVENTS: EventTable = {
     ],
   },
   heavy: {
-    // One solid pulse at full duty, the longest single hit in the ladder.
-    haptic: { steps: [{ duration: 150 }], ios: "heavy" },
+    // One solid pulse, long enough to reach full amplitude and short enough to snap.
+    haptic: { steps: [{ duration: 60 }], ios: "heavy" },
     sound: "thud",
     motion: [
       { kind: "boop", scale: 1.24 },
