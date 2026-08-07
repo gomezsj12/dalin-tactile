@@ -63,8 +63,9 @@ and `tactile-site` vendored-copy graph).
 
 ## CLIs worth having
 
-- **Node ≥ 20.** Matches CI; the build, tests, demo server, and `scripts/check-size.mjs`
-  all run on plain Node (no global CLI needed).
+- **Node ≥ 20.** CI runs 24, since GitHub deprecated Node 20 on its runners. The build,
+  tests, demo server, `scripts/check-size.mjs`, and `scripts/sync-site.mjs` all run on
+  plain Node (no global CLI needed).
 - **gh** (GitHub CLI) for releases/PRs; the package installs via `github:gomezsj12/dalin-tactile`,
   so tags/releases matter once consumers pin versions.
 
