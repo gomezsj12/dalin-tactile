@@ -15,6 +15,8 @@ npm run lint:fix      # eslint --fix
 npm run format        # prettier --write (see note below, do NOT bulk-reformat src yet)
 npm run format:check  # prettier --check src/ (advisory, source is hand-formatted)
 npm run size          # gzipped bundle-size budget per entry point (build first)
+npm run sync:site     # copy dist/ into ../tactile-site/src/lib/tactile/ (build first)
+npm run sync:site:check  # report vendored drift and exit 1, writing nothing
 npm run demo          # build + serve demo/ at http://localhost:8137
 ```
 

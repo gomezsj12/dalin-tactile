@@ -1,15 +1,18 @@
-const PWM_PERIOD_MS = 10;
+const PWM_PERIOD_MS = 20;
 const MAX_PWM_WINDOWS_PER_STEP = 64;
 const clamp01 = (n) => (n < 0 ? 0 : n > 1 ? 1 : n);
 /**
- * Flatten a step sequence into a `navigator.vibrate` pattern `[on, off, on, …]`.
+ * Converts recipe steps to the pattern expected by `navigator.vibrate`. The result
+ * always starts with an on-value and alternates on and off.
  *
- * `navigator.vibrate` is binary on/off, so sub-full `intensity` is approximated
- * by PWM: a step's on-time is chopped into ~10 ms windows whose duty cycle equals
- * the intensity. Full intensity collapses to one solid pulse. `strength` is the
- * global magnitude knob: it scales each step's DURATION, the lever that actually
- * changes perceived power on the web (there is no amplitude control).
- * The returned pattern always begins with an on-value and alternates on/off.
+ * The web has no amplitude control, so `intensity` uses PWM: each scaled on-time is
+ * chopped into windows whose duty cycle equals the step's intensity. Full intensity
+ * becomes one solid pulse. `PWM_PERIOD_MS` is 20 ms, raised from 10. At 10 ms, a
+ * 0.5 duty gave an Android LRA motor only 5 ms to move. At 20 ms, a 0.7 duty
+ * gives 14 ms on, enough for partial response and perceptible roughness.
+ *
+ * `strength` scales each step's duration. `MAX_PWM_WINDOWS_PER_STEP` remains 64,
+ * widening the window only beyond 1280 ms so each step stays bounded at 64 windows.
  */
 export function stepsToPattern(steps, strength = 1) {
     const segs = [];

@@ -106,9 +106,9 @@ tunable layer over this and is honest about the fragility living in the platform
   `navigator.vibrate` array:
   - `strength` (global) scales each step's **duration**, the only lever that
     changes perceived power on the web (no amplitude control exists).
-  - sub-full `intensity` is **PWM-approximated**: the on-time is chopped into
-    ~10 ms windows whose duty cycle equals the intensity. Full intensity collapses
-    to one solid pulse.
+  - sub-full `intensity` is **PWM-approximated**: the on-time is chopped into 20 ms
+    windows whose duty cycle equals the intensity, long enough for Android LRA
+    motors to respond partially. Full intensity collapses to one solid pulse.
   - The pattern always begins on an on-value (a leading `delay` is encoded as a
     `0`-length on-pulse to preserve on/off parity). This is the contract the unit
     tests in `pattern.test.ts` pin.

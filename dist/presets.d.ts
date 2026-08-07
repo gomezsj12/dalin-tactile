@@ -1,16 +1,28 @@
 import type { EventName, EventOverrides, EventTable } from "./types.js";
 /**
- * Default event recipes. Each maps a semantic event onto up to three channels.
- * Override any field via `createTactile({ events: {...} })`.
+ * DEFAULT_EVENTS maps each semantic event across three channels. Haptics produce a
+ * vibration pattern. Sound supplies a cue name for the SoundPack to resolve. Motion
+ * drives on-screen effects, and every event includes emoji so a tap always shows
+ * something. Override any channel via `createTactile({ events: {...} })`.
  *
- *   haptic → vibrate pattern. Strength is a blend of PWM `intensity` (0..1, the
- *            duty cycle, perceptible on devices that honour it) AND `duration`.
- *            The spread is deliberately EXTREME so the steps feel very different:
- *            a 10ms / 0.18 whisper for selection up to a 100+180ms / 1.0
- *            double-thud for heavy. `strength` scales it globally.
- *   sound  → cue name the SoundPack resolves.
- *   motion → on-screen effect(s): a canvas emoji burst (+ a boop on impacts).
- *            Every event has emoji so a tap always shows something.
+ * Use `strength` as the global duration multiplier for every step. Within a haptic
+ * recipe, write a continuous rough run as one step with `intensity` below 1. Write a
+ * small number of separate events as steps with `delay` between them. A chopped
+ * step ends with an off-window; when a delay follows, that off-window merges into
+ * the delay, so the emitted gap is a few milliseconds longer than the delay in the
+ * source.
+ *
+ * Design rungs in this order: start with texture, use rhythm next, then use coarse
+ * weight only as a tiebreaker. Roughness and smoothness survive the motor better
+ * than fine duration changes; an airy feel does too.
+ *
+ * Rhythm separates a single event from repeated events. It also distinguishes a
+ * rising sequence from one that stays even or falls. A ladder of smooth pulses at
+ * 25 ms, 40 ms, 60 ms, or 100 ms feels like one haptic at four volumes.
+ *
+ * Tune pairs that users feel in sequence during real use. Array values can look
+ * widely separated while feeling identical; the old light half of this ladder did
+ * on Android hardware.
  */
 export declare const DEFAULT_EVENTS: EventTable;
 declare const EVENT_NAMES: EventName[];

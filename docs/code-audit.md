@@ -37,8 +37,8 @@ in [Verified sound](#verified-sound-no-finding) so they aren't re-litigated).
 | Critical | 0 | 0 | 0 |
 | High | 3 | 0 | 3 |
 | Medium | 2 | 1 | 3 |
-| Low | 7 | 6 | 13 |
-| **Total** | **12** | **7** | **19** |
+| Low | 6 | 7 | 13 |
+| **Total** | **11** | **8** | **19** |
 
 | ID | Sev | Title |
 |----|-----|-------|
@@ -309,6 +309,10 @@ large patterns.
 would exceed 64 windows, keeping custom buzz-style steps bounded while preserving
 short-step behavior, total duration, on/off parity, and approximate duty cycle.
 
+**Post-note (2026-08-07):** the base window is now 20 ms, not 10 (see ERR-005), so the
+widening engages past 1280 ms rather than past 640 ms. The 64-window bound and this
+finding's regression test are unchanged.
+
 ---
 
 ### AUDIT-012: Per-frame emoji `Map.get` lookup in the draw loop
@@ -366,7 +370,7 @@ channel replaces that whole recipe and should include the full desired channel s
 
 **Severity:** Low
 **Files:** `../tactile-site/src/lib/tactile/**` (vendored copy of `dist/`)
-**Status:** Open
+**Status:** Fixed (2026-08-07)
 
 The public demo (`tactile-site`) contains a **byte-identical hand-copy** of this
 package's `dist/` at `src/lib/tactile/`, with no sync script or CI drift check. It's in
@@ -377,6 +381,12 @@ stale.
 (`github:gomezsj12/dalin-tactile`) or add a `sync:site` script (copy `dist/` →
 `../tactile-site/src/lib/tactile/`) plus a CI check that fails on divergence. (Cross-repo
 fix, lives partly in `tactile-site`.)
+
+**Resolution:** Added dependency-free `scripts/sync-site.mjs` with copy and `--check`
+modes, plus `sync:site` and `sync:site:check`. The site still vendors a copy. The
+`tactile-site` CI workflow owns the drift gate because that repo contains the stale
+artifact and can commit the repair. If `tactile-site` is unavailable locally, check
+mode skips and exits 0; explicit copy mode errors.
 
 **Drift log.** The predicted drift happened on the first `dist/`-changing release after
 this finding was written: the synth pack rebuild (2026-07-25) left the site a generation

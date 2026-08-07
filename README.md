@@ -84,7 +84,7 @@ Any method optionally takes a **target** (an `Element`, a `MouseEvent`, or `{ x,
 
 Each channel is **opt‑in and lazily loaded**, so a haptics‑only build never bundles the sound or motion code.
 
-- **haptic** is Android `navigator.vibrate` + the iOS `<input switch>` tick. Strength comes from duration + PWM duty (there's no web amplitude). iOS ignores haptic duration, so sustained presets like `buzz()` still produce one Taptic tick there.
+- **haptic** is Android `navigator.vibrate` plus the iOS `<input switch>` tick. Strength comes from duration plus PWM duty; the web has no amplitude control. Sub-full intensity uses 20 ms windows, which lets Android LRA motors make roughness distinguishable from a solid pulse. iOS ignores haptic duration, so sustained presets such as `buzz()` still produce one Taptic tick there.
 - **sound** is Web Audio. A built‑in zero‑asset **synth pack** by default, or your own sample pack. Twenty cues; see [Sound](#sound).
 - **motion** is a dependency‑free canvas **emoji‑particle** engine + a springy **boop**. Respects `prefers-reduced-motion`.
 

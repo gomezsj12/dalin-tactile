@@ -175,7 +175,7 @@ Patterns that have caused (or will cause) issues here or in sibling haptics code
 
 ### 8. Unbounded vibration pattern from PWM
 **Pattern:** a long-duration, sub-full-`intensity` step (e.g. a custom 2500 ms / 0.5 buzz) expands to a huge `[on,off,…]` array.
-**Why:** `stepsToPattern` chops on-time into ~10 ms PWM windows → hundreds of entries; some engines cap pattern length.
+**Why:** `stepsToPattern` chops on-time into ~20 ms PWM windows → hundreds of entries; some engines cap pattern length.
 **Where:** `src/pattern.ts`, custom `events`/`play()` input.
 **Fix:** be aware of the expansion; consider a cap/floor for very long low-intensity steps; document the limit.
 

@@ -2,6 +2,47 @@
 
 What changed, when, and why. Most recent first.
 
+## 2026-08-07 (20 ms PWM and retuned defaults)
+
+- **PWM windows widened.** `PWM_PERIOD_MS` rose from 10 ms to 20 ms. At 10 ms,
+  0.5 duty gives an Android LRA motor 5 ms on-time; its mass never reaches
+  amplitude and low-passes the train into one blip. At 20 ms, 0.7 duty gives
+  14 ms on-time, enough for partial response and perceptible roughness.
+
+- **Hardware exposed the bug.** In `dalin. stash`, `selection`, `press`, `toggle`,
+  and `light` felt identical on a real Android phone. Their old emitted patterns
+  were `[5,5,2]`, `[6,4,5]`, `[7,3,7,3,3]`, and `[7,3,7,3,5]`; `selection`
+  supplied only 7 ms of motor time. On the same phone, notes-app's 20 ms
+  `web-haptics` window felt varied. Its similarly weighted `medium`
+  `[14,6,4,1]` and `heavy` `[35]` had opposite, distinct feel.
+
+- **Defaults separate feel.** `DEFAULT_EVENTS` now distinguishes rough, smooth,
+  and airy runs first, rhythm second, and coarse weight last. A textured run is
+  one sub-full-intensity step; discrete events are separate steps with `delay`.
+  The claim that numeric spread felt "deliberately EXTREME" was removed.
+
+- **Bounds remain intact.** `MAX_PWM_WINDOWS_PER_STEP` stays 64; widening starts
+  past 1280 ms instead of 640 ms. Three tests in `src/pattern.test.ts` pin 20 ms
+  emission, match `intensity` with hand-rolled steps at the same duty, and amend
+  chopping coverage. All 15 tests pass.
+
+- **Built output shipped.** `npm run build` refreshed committed `dist/`.
+
+- **Convergence.** After the library adopted the tuning proven in `dalin. stash`,
+  the app removed its overrides. Seven of 12 rungs now emit byte-identical arrays.
+  The other five differ only by one 4-12 ms gap because a chopped step's trailing
+  off-window merges with `delay`.
+
+- **Vendored copy guard.** Added `scripts/sync-site.mjs` and the `sync:site` and
+  `sync:site:check` scripts to detect and repair missing, stale, and orphan files
+  in `tactile-site`. Verification found 56 files in sync; a perturbed file failed
+  the check and was repaired.
+
+- **Site-owned CI.** Added the site's first workflow, which checks pushes to `main`
+  and pull requests for drift. The check lives with the stale artifact, where the
+  fix can be committed, and closes AUDIT-015 after two silent drifts, including
+  the 20 ms carrier and preset rewrite.
+
 ## 2026-07-25 (buzz reverted, em dashes gone repo-wide)
 
 - **`buzz` reverted.** The rebuild gave it a detuned octave under a 700 Hz lowpass

@@ -65,8 +65,9 @@ The bundle-size budget (`npm run size`) enforces "tiny".
 - **Types and behavior must agree.** If you change what `config.backend` or an event
   override does, update `src/types.ts` and the README in the same change.
 - **No new runtime dependency.**
-- After any change: `npm run build && npm test && npm run lint && npm run size`, then
-  rebuild + commit `dist/`.
+- After any change: `npm run build && npm test && npm run lint && npm run size`,
+  then rebuild `dist/`, commit it here, run `npm run sync:site`, and commit the
+  result in `tactile-site`.
 
 ### After writing code
 - Update [`docs/change-log.md`](./docs/change-log.md); if you fixed/found a bug, add an

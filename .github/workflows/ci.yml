@@ -41,7 +41,7 @@ jobs:
         run: npm run size
 
       # Advisory only: the source predates Prettier and is hand-formatted, so it
-      # is not yet Prettier-clean (see docs/code-audit.md AUDIT-015). Adopting
+      # is not yet Prettier-clean (see docs/code-audit.md AUDIT-017). Adopting
       # Prettier needs a one-time `npm run format` reformat in its own commit;
       # after that, drop `continue-on-error` to make this a hard gate.
       - name: Format check (advisory)

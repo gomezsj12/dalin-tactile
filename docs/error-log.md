@@ -100,3 +100,30 @@ mechanism (a long vibrate step, a `sustain` audio envelope, and a `duration` par
 shower) kept roughly in sync. **Platform caveat:** on iOS the haptic is still a single
 tick regardless of the 2500 ms step (one Taptic tick per call); the "continuous" feel
 there comes from sound + motion only. Document this where `buzz` is described.
+
+---
+
+### ERR-005: Ten-millisecond PWM erased preset differences
+
+**Status:** Resolved
+**Area:** Android PWM preset rendering
+
+**Symptom:** On a real Android phone, `selection`, `press`, `toggle`, and `light`
+felt indistinguishable. Their old emitted patterns were `[5,5,2]`, `[6,4,5]`,
+`[7,3,7,3,3]`, and `[7,3,7,3,5]`; `selection` supplied only 7 ms of total motor
+time.
+**Root cause:** `navigator.vibrate` is binary, so `@dalin/tactile` approximates
+amplitude by chopping on-time into PWM windows. A 0.5 duty cycle in the old 10 ms
+window gave an LRA motor 5 ms on-time. Its mass never reached amplitude and
+low-passed the train into one blip.
+**Fix:** `PWM_PERIOD_MS` increased from 10 ms to 20 ms. At 0.7 duty, 14 ms of
+on-time lets the motor respond partially, making roughness perceptible. Notes-app's
+20 ms `web-haptics` behavior on the same phone corroborated the choice.
+**Lesson:** Before trusting preset differences, inspect emitted on/off arrays and
+feel them on target hardware. Smooth 25, 40, 60, and 100 ms pulses can read as one
+haptic at four volumes; use contrasts like `web-haptics` `medium`
+`[14,6,4,1]` and `heavy` `[35]` to check whether similar weight yields distinct
+feel. This change does not fix the library's iOS limitation:
+`createWebBackend().fire()` calls `iosTick()` once and returns before reading recipe
+steps, so every rung is one identical Taptic tick. Separately, Apple's iOS 26.5
+patch broke the `<input switch>` trick that produces that tick at all.

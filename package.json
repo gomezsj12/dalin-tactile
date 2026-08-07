@@ -37,6 +37,8 @@
     "format": "prettier --write \"src/**/*.ts\" \"*.{json,md}\" \"docs/**/*.md\"",
     "format:check": "prettier --check \"src/**/*.ts\"",
     "size": "node scripts/check-size.mjs",
+    "sync:site": "node scripts/sync-site.mjs",
+    "sync:site:check": "node scripts/sync-site.mjs --check",
     "demo": "npm run build && node demo/server.mjs"
   },
   "keywords": [

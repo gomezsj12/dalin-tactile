@@ -7,11 +7,36 @@ describe("stepsToPattern", () => {
   });
 
   it("PWM-chops sub-full intensity into [on, off, …] with less on-time", () => {
-    const p = stepsToPattern([{ duration: 20, intensity: 0.5 }]);
+    const p = stepsToPattern([{ duration: 60, intensity: 0.5 }]);
     expect(p.length).toBeGreaterThan(1);
     const onMs = p.filter((_, i) => i % 2 === 0).reduce((a, b) => a + b, 0);
     expect(onMs).toBeGreaterThan(0);
-    expect(onMs).toBeLessThan(20); // duty < 100%
+    expect(onMs).toBeLessThan(60); // duty < 100%
+  });
+
+  // The carrier width is the whole reason the light rungs feel different from
+  // each other, so pin the emitted windows rather than just the duty cycle.
+  // A 20 ms window puts 0.7 at 14 ms on, long enough for an LRA to respond, so
+  // the step reads as rough. At the old 10 ms window the same duty was 7 ms on
+  // and the motor low-passed it into one indistinct blip.
+  it("uses a 20ms PWM carrier, so a high duty emits motor-length on-windows", () => {
+    expect(stepsToPattern([{ duration: 40, intensity: 0.7 }])).toEqual([14, 6, 14]);
+    expect(stepsToPattern([{ duration: 40, intensity: 0.3 }])).toEqual([6, 14, 6]);
+  });
+
+  // Consumers hand-rolled explicit full-intensity steps to pick their own carrier
+  // while the built-in one was too fast. At 20 ms the two spellings agree, so that
+  // workaround can collapse back into `intensity`.
+  it("matches hand-rolled explicit steps at the same duty", () => {
+    const explicitAiry = [
+      { duration: 6 },
+      { delay: 14, duration: 6 },
+      { delay: 14, duration: 6 },
+      { delay: 14, duration: 6 },
+    ];
+    expect(stepsToPattern([{ duration: 80, intensity: 0.3 }])).toEqual(
+      stepsToPattern(explicitAiry),
+    );
   });
 
   it("bounds long fractional-intensity PWM expansion", () => {

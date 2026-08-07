@@ -1,37 +1,53 @@
 import type { EventName, EventOverrides, EventRecipe, EventTable } from "./types.js";
 
 /**
- * Default event recipes. Each maps a semantic event onto up to three channels.
- * Override any field via `createTactile({ events: {...} })`.
+ * DEFAULT_EVENTS maps each semantic event across three channels. Haptics produce a
+ * vibration pattern. Sound supplies a cue name for the SoundPack to resolve. Motion
+ * drives on-screen effects, and every event includes emoji so a tap always shows
+ * something. Override any channel via `createTactile({ events: {...} })`.
  *
- *   haptic → vibrate pattern. Strength is a blend of PWM `intensity` (0..1, the
- *            duty cycle, perceptible on devices that honour it) AND `duration`.
- *            The spread is deliberately EXTREME so the steps feel very different:
- *            a 10ms / 0.18 whisper for selection up to a 100+180ms / 1.0
- *            double-thud for heavy. `strength` scales it globally.
- *   sound  → cue name the SoundPack resolves.
- *   motion → on-screen effect(s): a canvas emoji burst (+ a boop on impacts).
- *            Every event has emoji so a tap always shows something.
+ * Use `strength` as the global duration multiplier for every step. Within a haptic
+ * recipe, write a continuous rough run as one step with `intensity` below 1. Write a
+ * small number of separate events as steps with `delay` between them. A chopped
+ * step ends with an off-window; when a delay follows, that off-window merges into
+ * the delay, so the emitted gap is a few milliseconds longer than the delay in the
+ * source.
+ *
+ * Design rungs in this order: start with texture, use rhythm next, then use coarse
+ * weight only as a tiebreaker. Roughness and smoothness survive the motor better
+ * than fine duration changes; an airy feel does too.
+ *
+ * Rhythm separates a single event from repeated events. It also distinguishes a
+ * rising sequence from one that stays even or falls. A ladder of smooth pulses at
+ * 25 ms, 40 ms, 60 ms, or 100 ms feels like one haptic at four volumes.
+ *
+ * Tune pairs that users feel in sequence during real use. Array values can look
+ * widely separated while feeling identical; the old light half of this ladder did
+ * on Android hardware.
  */
 export const DEFAULT_EVENTS: EventTable = {
   selection: {
-    haptic: { steps: [{ duration: 14, intensity: 0.5 }], ios: "light" },
+    // Rough and quick, so moving feels different from arriving.
+    haptic: { steps: [{ duration: 14 }, { delay: 6, duration: 4 }], ios: "light" },
     sound: "tick",
     motion: { kind: "particles", emojis: ["✨"], count: 3 },
   },
   press: {
-    // Scale BELOW 1: the element goes in, which is the whole point of a press.
-    haptic: { steps: [{ duration: 18, intensity: 0.6 }], ios: "light" },
+    // Smooth and crisp, with similar weight to selection but none of its roughness.
+    haptic: { steps: [{ duration: 35 }], ios: "light" },
     sound: "press",
+    // Scale BELOW 1: the element goes in, which is the whole point of a press.
     motion: { kind: "boop", scale: 0.94, timing: 160 },
   },
   release: {
-    haptic: { steps: [{ duration: 9, intensity: 0.35 }], ios: "light" },
+    // A pinprick that barely registers as something leaves.
+    haptic: { steps: [{ duration: 8 }], ios: "light" },
     sound: "release",
     motion: { kind: "boop", scale: 1.05, timing: 220 },
   },
   toggle: {
-    haptic: { steps: [{ duration: 24, intensity: 0.7 }], ios: "light" },
+    // A click then clack, like a detent seating.
+    haptic: { steps: [{ duration: 10 }, { delay: 45, duration: 32 }], ios: "light" },
     sound: "toggle",
     motion: [
       { kind: "boop", scale: 1.1 },
@@ -39,12 +55,14 @@ export const DEFAULT_EVENTS: EventTable = {
     ],
   },
   light: {
-    haptic: { steps: [{ duration: 28, intensity: 0.65 }], ios: "light" },
+    // An airy, widely spaced flutter unlike anything else in the ladder.
+    haptic: { steps: [{ duration: 80, intensity: 0.3 }], ios: "light" },
     sound: "tap",
     motion: { kind: "particles", emojis: ["✨", "👆"], count: 4, flip: true },
   },
   medium: {
-    haptic: { steps: [{ duration: 70, intensity: 1 }], ios: "medium" },
+    // One smooth thud, the heaviest rung that remains a single event.
+    haptic: { steps: [{ duration: 80 }], ios: "medium" },
     // The impact ladder is audible as well as felt: tap, then press, then thud.
     sound: "press",
     motion: [
@@ -53,10 +71,11 @@ export const DEFAULT_EVENTS: EventTable = {
     ],
   },
   heavy: {
+    // A rough hit, a pause, then a solid landing, with the most motor time.
     haptic: {
       steps: [
-        { duration: 100, intensity: 1 },
-        { delay: 55, duration: 180, intensity: 1 },
+        { duration: 80, intensity: 0.8 },
+        { delay: 85, duration: 60 },
       ],
       ios: "heavy",
     },
@@ -67,10 +86,11 @@ export const DEFAULT_EVENTS: EventTable = {
     ],
   },
   success: {
+    // A rising flutter that resolves in a solid tap, the payoff gesture.
     haptic: {
       steps: [
-        { duration: 25, intensity: 0.5 },
-        { delay: 55, duration: 60, intensity: 0.95 },
+        { duration: 100, intensity: 0.5 },
+        { delay: 60, duration: 45 },
       ],
       ios: "medium",
     },
@@ -84,10 +104,11 @@ export const DEFAULT_EVENTS: EventTable = {
     },
   },
   warning: {
+    // Two rough clusters, with a softer second cluster that makes the sequence fall.
     haptic: {
       steps: [
-        { duration: 55, intensity: 0.75 },
-        { delay: 75, duration: 55, intensity: 0.75 },
+        { duration: 60, intensity: 0.8 },
+        { delay: 100, duration: 60, intensity: 0.6 },
       ],
       ios: "medium",
     },
@@ -95,11 +116,12 @@ export const DEFAULT_EVENTS: EventTable = {
     motion: { kind: "particles", emojis: ["⚠️", "😬", "👀"], count: 5, flip: true },
   },
   error: {
+    // Three tight clusters whose count makes failure unmistakable.
     haptic: {
       steps: [
-        { duration: 90, intensity: 1 },
-        { delay: 45, duration: 90, intensity: 1 },
-        { delay: 45, duration: 90, intensity: 1 },
+        { duration: 60, intensity: 0.9 },
+        { delay: 42, duration: 60, intensity: 0.9 },
+        { delay: 42, duration: 60, intensity: 0.9 },
       ],
       ios: "heavy",
     },
@@ -107,22 +129,17 @@ export const DEFAULT_EVENTS: EventTable = {
     motion: { kind: "particles", emojis: ["⛔️", "🚫", "💢"], count: 6 },
   },
   loading: {
-    // Two soft ticks spaced like a heartbeat: something is happening, nothing is done.
-    haptic: {
-      steps: [
-        { duration: 12, intensity: 0.4 },
-        { delay: 160, duration: 12, intensity: 0.4 },
-      ],
-      ios: "light",
-    },
+    // Two distant pinpricks; the gap says the work remains unresolved.
+    haptic: { steps: [{ duration: 5 }, { delay: 220, duration: 5 }], ios: "light" },
     sound: "loading",
     motion: { kind: "particles", emojis: ["⏳", "💭"], count: 3, flip: true },
   },
   ready: {
+    // The success gesture at half size, for work that has finished.
     haptic: {
       steps: [
-        { duration: 20, intensity: 0.55 },
-        { delay: 45, duration: 45, intensity: 0.9 },
+        { duration: 40, intensity: 0.4 },
+        { delay: 70, duration: 26 },
       ],
       ios: "medium",
     },
