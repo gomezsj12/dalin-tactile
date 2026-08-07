@@ -45,7 +45,7 @@ import { createTactile } from "@dalin/tactile";
 const t = createTactile({ haptics: true, sound: true, motion: true });
 
 t.selection();            // a light tick + soft click
-t.impact("heavy", el);    // strong double‑thud + boom + a springy "boop" on `el`
+t.impact("heavy", el);    // one strong pulse + boom + a springy "boop" on `el`
 t.success(clickEvent);    // success buzz + chime + an emoji shower at the tap point
 t.buzz();                 // ~2.5s sound + emoji shower; Android vibrates, iOS ticks once
 

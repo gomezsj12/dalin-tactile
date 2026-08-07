@@ -66,7 +66,7 @@ describe("stepsToPattern", () => {
         { duration: 100, intensity: 1 },
         { delay: 55, duration: 180, intensity: 1 },
       ]),
-    ).toEqual([100, 55, 180]); // the "heavy" double-thud
+    ).toEqual([100, 55, 180]); // two discrete hits with a gap between them
   });
 
   it("returns an empty pattern when there is no on-time", () => {

@@ -2,6 +2,19 @@
 
 What changed, when, and why. Most recent first.
 
+## 2026-08-07 (heavy becomes one pulse)
+
+- **`heavy` is a single hit now.** It was two events: an 80 ms rough pulse at 0.8
+  duty, an 85 ms gap, then a 60 ms solid landing. The rough half read as weak, and
+  the gap made the whole thing arrive as two medium taps instead of one hard one.
+  The recipe is now one 150 ms step at full duty, which emits `[150]`: the longest
+  unbroken on-time in the ladder, and nearly twice `medium`'s 80 ms.
+
+- **The ladder still separates.** `medium` and `heavy` are now the same shape at
+  different weights, so the rung that used to carry the contrast is `light`, whose
+  0.3 duty keeps it airy and rough against the two solid pulses above it. iOS is
+  unaffected: it maps to the `heavy` Taptic style either way, and ignores duration.
+
 ## 2026-08-07 (20 ms PWM and retuned defaults)
 
 - **PWM windows widened.** `PWM_PERIOD_MS` rose from 10 ms to 20 ms. At 10 ms,
