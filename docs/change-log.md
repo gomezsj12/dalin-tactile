@@ -2,28 +2,42 @@
 
 What changed, when, and why. Most recent first.
 
-## 2026-08-07 (heavy and medium become crisp single hits)
+## 2026-08-07 (heavy becomes a strike plus a landing)
 
-- **`heavy` is one short pulse.** It was two events: an 80 ms rough pulse at 0.8
-  duty, an 85 ms gap, then a 60 ms solid landing. The rough half read as weak, and
-  the gap made the whole thing arrive as two medium taps instead of one hard one.
-  The recipe is now one 60 ms step at full duty, which emits `[60]`.
+- **`heavy` is now `[35, 30, 55]`.** It was an 80 ms rough pulse at 0.8 duty, an
+  85 ms gap, then a 60 ms landing. The rough half read as weak, and the 85 ms gap
+  was wide enough that the pair arrived as two separate medium taps. The recipe is
+  now a 35 ms strike at full duty, a 30 ms gap, and a 55 ms landing: 90 ms of motor
+  time in total, more than `medium`, with no single run long enough to sustain.
 
-- **Length is not weight, past a point.** Two longer single pulses were tried on
-  hardware first, 150 ms and 90 ms, and both read as a short buzz rather than a
-  hit. An LRA needs roughly 20 to 30 ms to reach full amplitude, and once it is
-  there, more drive time only extends the sustain. Past about 80 ms the pulse
-  stops being an impact. 60 ms clears the spin-up and stops before that line.
+- **Length is not force.** Three single pulses were tried on hardware first, at
+  150 ms, 90 ms, and 60 ms. The first two read as a short buzz. The third was
+  crisp but no stronger than `medium`. An LRA reaches full amplitude in roughly
+  20 to 30 ms, and after that more drive time only extends the sustain, so past
+  about 80 ms a pulse stops being an impact. A second onset is the only lever
+  left: the motor re-accelerates, and that transient is what registers as force.
 
-- **`medium` came down with it.** 80 ms was longer than the new `heavy`, which
-  inverted the ladder. It is now 45 ms, so `medium` and `heavy` are the same crisp
-  shape at 1.3x apart. Worth watching: `press` is a 35 ms solid pulse, so it now
-  sits close to `medium`. The two differ in sound and in which way their boop
-  scales, and they rarely fire in sequence, but the haptics alone are similar.
+- **The gap does the work.** At 85 ms the motor fully rings down, so the two
+  strikes arrive as two events. At 30 ms it has not settled, so they fuse into one
+  hit that lands hard. This is the same reason `light` reads as airy: its 0.3 duty
+  chops it into 6 ms windows that never reach amplitude at all.
 
-- **Weight now comes from below.** With both solid rungs short, the contrast is
-  carried by `light`, whose 0.3 duty keeps it airy and rough against them. iOS is
-  unaffected throughout: it maps to the `heavy` Taptic style and ignores duration.
+- **`medium` is back to 80 ms.** It had come down to 45 ms while `heavy` was a
+  60 ms single pulse, which put the two within 1.3x of each other and made them
+  hard to tell apart. Restoring 80 ms puts `medium` back to one smooth thud, the
+  heaviest rung that is still a single strike.
+
+- **Calibrated against `web-haptics`.** The notes-app uses that library, and its
+  `heavy` is the cue fired when a dragged page chip crosses into a new folder,
+  which is the bar this rung was measured against. Its ladder is `light` 15 ms at
+  0.4 duty, `medium` 25 ms at 0.7, and `heavy` 35 ms at 1.0, on the same 20 ms PWM
+  carrier we use, so they emit `[6]`, `[14,6,4,1]`, and `[35]`. Its `heavy` is
+  shorter than our `medium` and still reads as the strongest cue in that set,
+  because it is the only unbroken full-duty pulse there. Our `press` now emits
+  exactly that `[35]`.
+
+- **iOS is unaffected throughout.** It collapses to the `heavy` Taptic style and
+  ignores duration, so every tuning pass here is Android-only.
 
 ## 2026-08-07 (20 ms PWM and retuned defaults)
 

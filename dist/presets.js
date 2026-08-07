@@ -59,8 +59,8 @@ export const DEFAULT_EVENTS = {
         motion: { kind: "particles", emojis: ["✨", "👆"], count: 4, flip: true },
     },
     medium: {
-        // One smooth tap, the middle rung: the same crisp shape as heavy, a step lighter.
-        haptic: { steps: [{ duration: 45 }], ios: "medium" },
+        // One smooth thud, the heaviest rung that is a single strike.
+        haptic: { steps: [{ duration: 80 }], ios: "medium" },
         // The impact ladder is audible as well as felt: tap, then press, then thud.
         sound: "press",
         motion: [
@@ -69,8 +69,15 @@ export const DEFAULT_EVENTS = {
         ],
     },
     heavy: {
-        // One solid pulse, long enough to reach full amplitude and short enough to snap.
-        haptic: { steps: [{ duration: 60 }], ios: "heavy" },
+        // A 35 ms strike, then a heavier landing. Two onsets read as more force than
+        // one long pulse, which only adds sustain. The 30 ms gap fuses them into one hit.
+        haptic: {
+            steps: [
+                { duration: 35 },
+                { delay: 30, duration: 55 },
+            ],
+            ios: "heavy",
+        },
         sound: "thud",
         motion: [
             { kind: "boop", scale: 1.24 },
