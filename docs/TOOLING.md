@@ -75,10 +75,6 @@ and `tactile-site` vendored-copy graph).
   and unit tests can't exercise them. A real Chromium with a `navigator.vibrate` spy +
   an `AudioContext` assertion would catch firing/coordination regressions. See
   [`DEFERRED.md`](./DEFERRED.md).
-- **`dist/` drift guard for `tactile-site`.** The public demo vendors a byte copy of
-  `dist/` at `src/lib/tactile/` with no sync step. Add a `sync:site` script (copy
-  `dist/` → `../tactile-site/src/lib/tactile/`) or a CI check that compares them, so a
-  release can't ship a stale demo. (Tracked in `code-audit.md`.)
 - **Stricter ESLint tier.** The current config uses the non-type-checked `recommended`
   preset. A `recommendedTypeChecked` + `no-non-null-assertion` tier would flag the
   heavy `!` usage in `particles.ts`; adopt once the source is allowed to change.

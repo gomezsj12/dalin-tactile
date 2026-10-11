@@ -378,9 +378,8 @@ sync today, but a release that rebuilds `dist/` here will silently leave `tactil
 stale.
 
 **Recommendation:** Have `tactile-site` consume the package as a real dependency
-(`github:gomezsj12/dalin-tactile`) or add a `sync:site` script (copy `dist/` →
-`../tactile-site/src/lib/tactile/`) plus a CI check that fails on divergence. (Cross-repo
-fix, lives partly in `tactile-site`.)
+(`github:gomezsj12/dalin-tactile`) or add a CI check in `tactile-site` that fails on
+divergence. (Cross-repo fix, lives partly in `tactile-site`.)
 
 **Resolution:** Added dependency-free `scripts/sync-site.mjs` with copy and `--check`
 modes, plus `sync:site` and `sync:site:check`. The site still vendors a copy. The
